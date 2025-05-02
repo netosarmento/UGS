@@ -1,0 +1,78 @@
+<h2>Dados do Cidadão</h2>
+
+{% if dados %}
+    <p><strong>Nome:</strong> {{ dados.nome }}</p>
+    <p><strong>Data de nascimento:</strong> {{ dados.dataNascimento }}</p>
+    <p><strong>CPF:</strong> {{ dados.cpf }}</p>
+    <p><strong>CNS:</strong> {{ dados.cns }}</p>
+
+    <hr>
+
+    <h3>Histórico Clínico</h3>
+    {% for item in dados.historicoClinico %}
+        <p><strong>Condição:</strong> {{ item.condicao }}</p>
+        <p><strong>Data:</strong> {{ item.data }}</p>
+        <hr>
+    {% empty %}
+        <p>Nenhum histórico clínico registrado.</p>
+    {% endfor %}
+
+    <h3>Atendimentos e Consultas</h3>
+    {% for atendimento in dados.atendimentos %}
+        <p><strong>Data:</strong> {{ atendimento.data }}</p>
+        <p><strong>Profissional:</strong> {{ atendimento.profissional }}</p>
+        <p><strong>Unidade:</strong> {{ atendimento.unidade }}</p>
+        <hr>
+    {% empty %}
+        <p>Nenhum atendimento registrado.</p>
+    {% endfor %}
+
+    <h3>Procedimentos Realizados</h3>
+    {% for proc in dados.procedimentos %}
+        <p><strong>Procedimento:</strong> {{ proc.nome }}</p>
+        <p><strong>Data:</strong> {{ proc.data }}</p>
+        <hr>
+    {% empty %}
+        <p>Nenhum procedimento registrado.</p>
+    {% endfor %}
+
+    <h3>Encaminhamentos</h3>
+    {% for enc in dados.encaminhamentos %}
+        <p><strong>Especialidade:</strong> {{ enc.especialidade }}</p>
+        <p><strong>Data:</strong> {{ enc.data }}</p>
+        <hr>
+    {% empty %}
+        <p>Nenhum encaminhamento registrado.</p>
+    {% endfor %}
+
+    <h3>Prescrições</h3>
+    {% for receita in dados.prescricoes %}
+        <p><strong>Medicamento:</strong> {{ receita.medicamento }}</p>
+        <p><strong>Dose:</strong> {{ receita.dose }}</p>
+        <p><strong>Frequência:</strong> {{ receita.frequencia }}</p>
+        <hr>
+    {% empty %}
+        <p>Nenhuma prescrição registrada.</p>
+    {% endfor %}
+
+    <h3>Vacinas</h3>
+    {% for vacina in dados.vacinas %}
+        <p><strong>Nome:</strong> {{ vacina.nome }}</p>
+        <p><strong>Data:</strong> {{ vacina.data }}</p>
+        <hr>
+    {% empty %}
+        <p>Nenhuma vacina registrada.</p>
+    {% endfor %}
+
+    <h3>Doenças Epidemiológicas</h3>
+    {% for doenca in dados.doencas %}
+        <p><strong>Nome:</strong> {{ doenca.nome }}</p>
+        <p><strong>Data de Notificação:</strong> {{ doenca.dataNotificacao }}</p>
+        <hr>
+    {% empty %}
+        <p>Nenhuma doença epidemiológica registrada.</p>
+    {% endfor %}
+
+{% else %}
+    <p>Nenhum dado encontrado.</p>
+{% endif %}

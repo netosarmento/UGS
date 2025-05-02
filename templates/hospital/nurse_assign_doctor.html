@@ -1,0 +1,75 @@
+{% extends 'hospital/nurse_base.html' %}
+{% block content %}
+{% load static %}
+
+<head>
+  <link href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.min.css" rel="stylesheet">
+  <script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.min.js"></script>
+  <script src="//code.jquery.com/jquery-1.11.1.min.js"></script>
+
+  <style>
+    a:link {
+      text-decoration: none;
+    }
+
+    h6 {
+      text-align: center;
+    }
+
+    .row {
+      margin: 100px;
+    }
+  </style>
+</head>
+
+<div class="container">
+
+  <h3 class="my-4">Designar Médico para o Paciente</h3>
+
+  <div class="card mb-4">
+    <div class="card-body">
+      <h5><strong>Paciente:</strong> {{ patient.get_name }}</h5>
+      <p><strong>Sintomas:</strong> {{ patient.symptoms }}</p>
+      <p><strong>Endereço:</strong> {{ patient.address }}</p>
+      <p><strong>Telefone:</strong> {{ patient.mobile }}</p>
+      <p>
+        <strong>Médico Atual:</strong>
+        {% if patient.assignedDoctorId %}
+          {% for d in doctors %}
+            {% if d.user.id == patient.assignedDoctorId %}
+              {{ d.get_name }} - {{ d.department }}
+            {% endif %}
+          {% endfor %}
+        {% else %}
+          <span class="text-danger">Nenhum médico atribuído ainda</span>
+        {% endif %}
+      </p>
+    </div>
+  </div>
+
+  <form method="post" class="form">
+    {% csrf_token %}
+    <div class="form-group">
+      <label for="doctor_id"><strong>Selecionar Médico</strong></label>
+      <select name="doctor_id" id="doctor_id" class="form-control" required>
+        <option value="" disabled selected>Escolha um médico</option>
+        {% for doc in doctors %}
+          <option value="{{ doc.user.id }}">
+            {{ doc.get_name }} - {{ doc.department }}
+          </option>
+        {% endfor %}
+      </select>
+    </div>
+    <button type="submit" class="btn btn-success mt-3">Atribuir Médico</button>
+    <a href="{% url 'nurse-view-patient' %}" class="btn btn-secondary mt-3">Cancelar</a>
+  </form>
+
+</div>
+
+<!--
+developed By : Neto Sarmento
+Instagram : norte_dev
+MEI : Tech Norte Soluções
+-->
+
+{% endblock content %}

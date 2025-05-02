@@ -1,0 +1,26 @@
+<!-- hospital/templates/hospital/buscar_cns.html -->
+<h1>Buscar Paciente pelo CNS</h1>
+
+<form method="post">
+  {% csrf_token %}
+  <input type="text" name="numero_cns" placeholder="Digite o número do CNS" required>
+  <button type="submit">Buscar</button>
+</form>
+
+{% if dados_paciente %}
+  <h2>Dados do Paciente:</h2>
+  
+  {% if dados_paciente.error %}
+    <p style="color:red;">{{ dados_paciente.error }}</p>
+  {% else %}
+    <ul>
+      <li>Nome: {{ dados_paciente.nome }}</li>
+      <li>Data de Nascimento: {{ dados_paciente.data_nascimento }}</li>
+      <li>Nome da Mãe: {{ dados_paciente.nome_mae }}</li>
+      <!-- adicione outros campos conforme o que o SUS retorna -->
+    </ul>
+    <a href="{% url 'dados-cidadao' %}?cns={{ dados_paciente.numero_cns }}">Ver dados completos do PEC</a>
+  {% endif %}
+{% endif %}
+
+

@@ -1,0 +1,15 @@
+ajeitei models e form, no py do nurse
+
+criei o nurseclick template
+ eo nursesignup.html 
+nurse_waiting_approval
+nurse base
+doctor_dashboard_cards
+doctor_dashboard
+nurse_delete_appointment
+nurse_patient
+nurse_view_appointment
+nurse_view_discharge
+nurse_view_patient
+nurselogin
+template criado já tambem
