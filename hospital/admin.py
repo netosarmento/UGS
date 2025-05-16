@@ -1,7 +1,9 @@
 from django.contrib import admin
+from django import forms
+from django.core.exceptions import ValidationError
 from .models import (
     Doctor, Patient, Appointment, PatientDischargeDetails,
-    Nurse, Unidade, Folga, Escala, Room, RoomHistory, Medicine, MedicineUsage
+    Nurse, Unidade, Folga, Escala, Room, RoomHistory, Medicine, MedicineUsage, Admin,
 )
 
 
@@ -15,6 +17,13 @@ class MedicineAdmin(admin.ModelAdmin):
 admin.site.register(Medicine, MedicineAdmin)
 admin.site.register(MedicineUsage)
 
+
+
+@admin.register(Admin)
+class AdminAdmin(admin.ModelAdmin):
+    list_display = ('get_name', 'status')
+    list_filter = ('status',)
+    search_fields = ('user__first_name', 'user__last_name')
 
 
 # Doctor Admin
@@ -73,12 +82,29 @@ class EscalaAdmin(admin.ModelAdmin):
     search_fields = ('medico__user__first_name', 'enfermeiro__user__first_name', 'local__nome')
     list_filter = ('data', 'disponivel')
 
+
+class RoomAdminForm(forms.ModelForm):
+    class Meta:
+        model = Room
+        fields = '__all__'
+
+    def clean(self):
+        cleaned_data = super().clean()
+        paciente = cleaned_data.get('paciente')
+        entrada = cleaned_data.get('entrada')
+        saida = cleaned_data.get('saida')
+
+        if paciente and entrada and not saida:
+            raise ValidationError("Este quarto já está ocupado. Libere-o antes de atribuir um novo paciente.")
+
+        return cleaned_data
+
 @admin.register(Room)
 class RoomAdmin(admin.ModelAdmin):
+    form = RoomAdminForm
     list_display = ('numero', 'tipo', 'unidade', 'paciente', 'entrada', 'saida', 'disponivel')
     list_filter = ('tipo', 'unidade', 'disponivel')
     search_fields = ('numero', 'unidade__nome', 'paciente__user__first_name')
-
 @admin.register(RoomHistory)
 class RoomHistoryAdmin(admin.ModelAdmin):
     list_display = ('room', 'paciente', 'entrada', 'saida')

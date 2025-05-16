@@ -1,6 +1,7 @@
 from django import forms
 from django.contrib.auth.models import User
 from . import models
+from django.core.exceptions import ValidationError
 from .models import (
     Unidade,
     Folga,
@@ -324,6 +325,9 @@ class EscalaForm(forms.ModelForm):
 
         if not medico and not enfermeiro:
             raise forms.ValidationError("Você precisa selecionar um médico ou um enfermeiro.")
+
+
+
 
 
 class RoomForm(forms.ModelForm):

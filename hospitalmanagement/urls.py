@@ -44,7 +44,10 @@ from hospital.views import (
     
     lista_quartos,
     detalhe_quarto,
-    historico_quartos
+    historico_quartos,
+    
+    ###### LOGIN VIEW ########
+    CustomLoginView,
     
 )
 
@@ -75,10 +78,10 @@ urlpatterns = [
     
     
     ############ ADICIONANDO ERRO LOGIN USUARIO NAO CADASTRADO ####################
-    path('adminlogin', LoginView.as_view(template_name='hospital/adminlogin.html'), name='adminlogin'),
-    path('doctorlogin', LoginView.as_view(template_name='hospital/doctorlogin.html'), name='doctorlogin'),
-    path('patientlogin', LoginView.as_view(template_name='hospital/patientlogin.html'), name='patientlogin'),
-    path('nurselogin', LoginView.as_view(template_name='hospital/nurselogin.html'), name='nurselogin'),
+    path('adminlogin', CustomLoginView.as_view(), name='adminlogin'),
+    path('doctorlogin', CustomLoginView.as_view(), name='doctorlogin'),
+    path('patientlogin', CustomLoginView.as_view(), name='patientlogin'),
+    path('nurselogin', CustomLoginView.as_view(), name='nurselogin'),
 
     
     

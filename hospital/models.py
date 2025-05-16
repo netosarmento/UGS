@@ -28,6 +28,20 @@ ROOM_TYPES = [
 
 
 
+class Admin(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    status = models.BooleanField(default=False)  # Aguardando aprovação
+
+    @property
+    def get_name(self):
+        return f"{self.user.first_name} {self.user.last_name}"
+
+    @property
+    def get_id(self):
+        return self.user.id
+
+    def __str__(self):
+        return f"{self.user.first_name} ({'Aprovado' if self.status else 'Pendente'})"
 
 
 
@@ -297,13 +311,11 @@ class Escala(models.Model):
 
 
 
-
-
 class Room(models.Model):
     numero = models.CharField(max_length=10)
     tipo = models.CharField(max_length=30, choices=ROOM_TYPES)
     unidade = models.ForeignKey(Unidade, on_delete=models.CASCADE)
-    paciente = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True, blank=True)
+    paciente = models.ForeignKey("Patient", on_delete=models.SET_NULL, null=True, blank=True)
     entrada = models.DateTimeField(null=True, blank=True, editable=False)
     saida = models.DateTimeField(null=True, blank=True, editable=False)
     disponivel = models.BooleanField(default=True)
@@ -314,18 +326,23 @@ class Room(models.Model):
         unique_together = ['numero', 'unidade']
 
     def __str__(self):
-        ocupado = f" - Ocupado por: {self.paciente.get_name()}" if self.paciente else " - Disponível"
+        ocupado = f" - Ocupado por: {self.paciente.get_name}" if self.paciente else " - Disponível"
         return f"Quarto {self.numero} ({self.tipo}) - {self.unidade.nome}{ocupado}"
 
     def save(self, *args, **kwargs):
-        criando_entrada = self.paciente is not None
         agora = timezone.now()
+        novo_paciente = self.paciente
+        quarto_antigo = Room.objects.filter(pk=self.pk).first() if self.pk else None
+        paciente_anterior = quarto_antigo.paciente if quarto_antigo else None
 
-        if criando_entrada:
-            if self.entrada and not self.saida:
-                raise ValidationError("Este quarto já está ocupado. Libere-o antes de atribuir um novo paciente.")
-            self.entrada = agora
-            self.saida = None
+        # Verifica se está tentando trocar paciente enquanto o quarto ainda está ocupado
+        if paciente_anterior and paciente_anterior != novo_paciente and not self.saida:
+            raise ValidationError("Este quarto já está ocupado. Libere-o antes de atribuir um novo paciente.")
+
+        if novo_paciente:
+            if not self.entrada or self.saida:
+                self.entrada = agora
+                self.saida = None
             self.disponivel = False
         else:
             if not self.saida:
@@ -335,21 +352,24 @@ class Room(models.Model):
 
         super().save(*args, **kwargs)
 
-        if criando_entrada:
-            RoomHistory.objects.create(room=self, paciente=self.paciente, entrada=self.entrada)
-        else:
+        # Atualiza histórico
+        if novo_paciente and (not paciente_anterior or paciente_anterior != novo_paciente):
+            RoomHistory.objects.create(room=self, paciente=novo_paciente, entrada=self.entrada)
+        elif not novo_paciente:
             RoomHistory.objects.filter(room=self, saida__isnull=True).update(saida=self.saida)
+
+
             
             
 class RoomHistory(models.Model):
     room = models.ForeignKey(Room, on_delete=models.CASCADE)
-    paciente = models.ForeignKey(Patient, on_delete=models.SET_NULL, null=True)
+    paciente = models.ForeignKey("Patient", on_delete=models.SET_NULL, null=True)
     entrada = models.DateTimeField()
     saida = models.DateTimeField(null=True, blank=True)
     criado_em = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        nome = self.paciente.get_name() if self.paciente else 'Paciente removido'
+        nome = self.paciente.get_name if self.paciente else 'Paciente removido'
         entrada_str = self.entrada.strftime('%d/%m/%Y %H:%M')
         saida_str = self.saida.strftime('%d/%m/%Y %H:%M') if self.saida else '---'
         return f"{nome} em {self.room} de {entrada_str} até {saida_str}"

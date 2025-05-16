@@ -64,6 +64,12 @@
        Usuário ou senha inválidos.
       </div>
     {% endif %}
+    {% for message in messages %}
+      <div class="alert alert-danger" role="alert">
+        {{ message }}
+      </div>
+    {% endfor %}
+    <input type="hidden" name="next" value="{{ next }}">
     <div class="container register-form">
       <div class="form">
         <div class="note">

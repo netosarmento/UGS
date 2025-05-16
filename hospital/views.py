@@ -3,6 +3,7 @@ from . import forms,models
 from django.db.models import Sum
 from .models import Room, RoomHistory
 from django.contrib.auth.models import Group
+from django.contrib.auth.views import LoginView
 from django.http import HttpResponseRedirect, FileResponse
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required,user_passes_test
@@ -21,6 +22,7 @@ from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
 from reportlab.lib.pagesizes import A4
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet
+from django.urls import reverse_lazy
 from .forms import(
     UnidadeForm,
     FolgaForm,
@@ -90,21 +92,24 @@ def nurseclick_view(request):
 
 
 def admin_signup_view(request):
-    form=forms.AdminSigupForm()
-    if request.method=='POST':
-        form=forms.AdminSigupForm(request.POST)
+    form = forms.AdminSigupForm()
+    if request.method == 'POST':
+        form = forms.AdminSigupForm(request.POST)
         if form.is_valid():
-            user=form.save()
-            user.set_password(user.password)
-            user.save()
+            user = form.save()  # Já salva com senha criptografada (set_password no form)
+
+            # Cria instância no modelo Admin com status=False (aguardando aprovação)
+            models.Admin.objects.create(user=user, status=False)
+
+            # Adiciona ao grupo ADMIN
             my_admin_group = Group.objects.get_or_create(name='ADMIN')
             my_admin_group[0].user_set.add(user)
+
             return HttpResponseRedirect('adminlogin')
         else:
             messages.error(request, 'Usuário ou senha inválidos.')
         
-    return render(request,'hospital/adminsignup.html',{'form':form})
-
+    return render(request, 'hospital/adminsignup.html', {'form': form})
 
 
 
@@ -116,8 +121,9 @@ def doctor_signup_view(request):
         userForm=forms.DoctorUserForm(request.POST)
         doctorForm=forms.DoctorForm(request.POST,request.FILES)
         if userForm.is_valid() and doctorForm.is_valid():
-            user=userForm.save()
-            user.set_password(user.password)
+            user = userForm.save(commit=False)
+            password = userForm.cleaned_data.get('password')
+            user.set_password(password)
             user.save()
             doctor=doctorForm.save(commit=False)
             doctor.user=user
@@ -136,8 +142,9 @@ def nurse_signup_view(request):
         userForm=forms.NurseUserForm(request.POST)
         nurseForm=forms.NurseForm(request.POST,request.FILES)
         if userForm.is_valid() and nurseForm.is_valid():
-            user=userForm.save()
-            user.set_password(user.password)
+            user = userForm.save(commit=False)
+            password = userForm.cleaned_data.get('password')
+            user.set_password(password)
             user.save()
             nurse=nurseForm.save(commit=False)
             nurse.user=user
@@ -159,8 +166,9 @@ def patient_signup_view(request):
         patientForm = forms.PatientForm(request.POST, request.FILES)
 
         if userForm.is_valid() and patientForm.is_valid():
-            user = userForm.save()
-            user.set_password(user.password)
+            user = userForm.save(commit=False)
+            password = userForm.cleaned_data.get('password')
+            user.set_password(password)
             user.save()
 
             patient = patientForm.save(commit=False)
@@ -187,64 +195,104 @@ def patient_signup_view(request):
 
     return render(request, 'hospital/patientsignup.html', context=mydict)
 
+###########################################################################
+############   LOGIN VIEW #################################################
+
+class CustomLoginView(LoginView):
+    def get_template_names(self):
+        path = self.request.path
+        if 'adminlogin' in path:
+            return ['hospital/adminlogin.html']
+        elif 'doctorlogin' in path:
+            return ['hospital/doctorlogin.html']
+        elif 'nurselogin' in path:
+            return ['hospital/nurselogin.html']
+        elif 'patientlogin' in path:
+            return ['hospital/patientlogin.html']
+        return ['hospital/adminlogin.html']  # fallback
+
+    def form_invalid(self, form):
+        messages.error(self.request, "Usuário ou senha inválidos.")
+        return super().form_invalid(form)
+
+    def get_success_url(self):
+        return reverse_lazy('afterlogin')
+
+################################################################
+########### ADMIN APROVATION
 
 
 
 
-
+#################################################################
 #-----------for checking user is doctor , patient or admin(by sumit)
 def is_admin(user):
-    if user.groups.filter(name='ADMIN').exists():
-             return True
-    raise PermissionDenied
+    return user.groups.filter(name='ADMIN').exists()
+            
 def is_doctor(user):
-    if user.groups.filter(name='DOCTOR').exists():
-        return True
-    raise PermissionDenied
+    return user.groups.filter(name='DOCTOR').exists()
+        
 def is_patient(user):
-    if user.groups.filter(name='PATIENT').exists():
-        return True
-    raise PermissionDenied
+    return user.groups.filter(name='PATIENT').exists()
+        
 #Adding nurse
 def is_nurse(user):
-    if user.groups.filter(name='NURSE').exists():
-        return True
-    raise PermissionDenied
+    return user.groups.filter(name='NURSE').exists()
+        
+#############################################
 
+#@login_required
+#@user_passes_test(is_admin)
+#def approve_admin_view(request):
+#    pending_admins = models.Admin.objects.filter(status=False)
+#    return render(request, 'hospital/approve_admin.html', {'pending_admins': pending_admins})
 
 # CONTROL MEDICINE
 
 def is_admin_or_staff(user):
-    if user.groups.filter(name__in=['ADMIN', 'DOCTOR', 'NURSE']).exists():
-        return True
-    raise PermissionDenied
+    return user.groups.filter(name__in=['ADMIN', 'DOCTOR', 'NURSE']).exists()
+         
+#####################################################################################
+
+
+
 
 
 #---------AFTER ENTERING CREDENTIALS WE CHECK WHETHER USERNAME AND PASSWORD IS OF ADMIN,DOCTOR OR PATIENT
 @login_required
 def afterlogin_view(request):
     if is_admin(request.user) or request.user.is_superuser:
-        return redirect('admin-dashboard')
+        accountapproval = models.Admin.objects.filter(user_id=request.user.id, status=True)
+        if accountapproval.exists():
+            return redirect('admin-dashboard')
+        else:
+            return render(request, 'hospital/admin_wait_for_approval.html')
+
     elif is_doctor(request.user):
         accountapproval = models.Doctor.objects.filter(user_id=request.user.id, status=True)
-        if accountapproval:
+        if accountapproval.exists():
             return redirect('doctor-dashboard')
         else:
             return render(request, 'hospital/doctor_wait_for_approval.html')
+
     elif is_nurse(request.user):
-        accountapproval = models.Doctor.objects.filter(user_id=request.user.id, status=True)
-        if accountapproval:
+        accountapproval = models.Nurse.objects.filter(user_id=request.user.id, status=True)
+        if accountapproval.exists():
             return redirect('nurse-dashboard')
         else:
             return render(request, 'hospital/nurse_wait_for_approval.html')
+
     elif is_patient(request.user):
         accountapproval = models.Patient.objects.filter(user_id=request.user.id, status=True)
-        if accountapproval:
+        if accountapproval.exists():
             return redirect('patient-dashboard')
         else:
             return render(request, 'hospital/patient_wait_for_approval.html')
+
     else:
-        return redirect('admin-dashboard')  # ou mostre uma página de erro amigável
+        return redirect('admin-dashboard')
+ # ou mostre uma página de erro amigável
+    
 ###################################################################################
 ##################  ADD MEDICINE VIEWS ############################################
 ###################################################################################

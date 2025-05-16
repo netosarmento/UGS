@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+
+<html lang="en" dir="ltr">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+  <title>UGS || Admin</title>
+
+
+  <style media="screen">
+    .jumbotron {
+      margin-top: 0px;
+      margin-bottom: 0px;
+    }
+
+    .jumbotron h1 {
+      text-align: center;
+    }
+
+    .alert {
+      margin: 0px;
+    }
+  </style>
+
+</head>
+
+<body>
+  {% include "hospital/navbar.html" %}
+  <br>
+  <br>
+
+  <div class="jumbotron" style="margin-top: 0px;
+    margin-bottom: 0px;">
+    <h1 class="display-4">Olá {{request.user.first_name}}</h1>
+    <p class="lead">Sua Conta ainda não está aprovada <br><br>nosso time ainda está verificando sua documentação <br><br> Em breve sua conta estará ativa !!!</p>
+    <hr class="my-4">
+    <p>Verifique em breve</p>
+    <p class="lead">
+      <form method="post" action="{% url 'logout' %}" style="display: flex; justify-content: center;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary btn-lg" role="button">
+         Logout
+        </button>
+      </form>
+    </p>
+  </div>
+
+  {% include "hospital/footer.html" %}
+</body>
+<!--
+developed By : Neto Sarmento
+facebook : norte_dev
+Geral : Tech Norte Soluções
+-->
+
+</html>
