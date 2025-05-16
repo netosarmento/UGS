@@ -1,14 +1,59 @@
 from django.shortcuts import render,redirect,reverse, get_object_or_404
 from . import forms,models
 from django.db.models import Sum
+from .models import Room, RoomHistory
 from django.contrib.auth.models import Group
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, FileResponse
 from django.core.mail import send_mail
 from django.contrib.auth.decorators import login_required,user_passes_test
-from datetime import datetime,timedelta,date
+from datetime import datetime,timedelta,date, timezone
 from django.conf import settings
+from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.contrib import messages
+from django.contrib.auth import logout
+from django.template.loader import get_template
+import xhtml2pdf.pisa as pisa
+from django.core.exceptions import ValidationError
+import io
+from django.views import View
+from reportlab.platypus import SimpleDocTemplate, Table, TableStyle, Paragraph
+from reportlab.lib.pagesizes import A4
+from reportlab.lib import colors
+from reportlab.lib.styles import getSampleStyleSheet
+from .forms import(
+    UnidadeForm,
+    FolgaForm,
+    EscalaForm,
+    AddMedicineForm,
+    UpdateMedicineForm,
+    MedicineUsageForm
+)
+from .models import (
+    Unidade,
+    Folga,
+    Escala,
+    Medicine,
+    MedicineUsage,
+    MedicineLog,
+    Patient,
+    Doctor,
+    Nurse,
+)
+
+# ERRO USUARIO NAO LOGADO
+
+def erro_403(request, exception=None):
+    return render(request, '403.html', status=403)
+
+# Criando as views de logout GERAL
+
+def logout_view(request):
+    logout(request)
+    return redirect('home')  # home_view deve estar registrada com name='home'
+
+
+
 
 # Create your views here.
 def home_view(request):
@@ -55,6 +100,9 @@ def admin_signup_view(request):
             my_admin_group = Group.objects.get_or_create(name='ADMIN')
             my_admin_group[0].user_set.add(user)
             return HttpResponseRedirect('adminlogin')
+        else:
+            messages.error(request, 'Usuário ou senha inválidos.')
+        
     return render(request,'hospital/adminsignup.html',{'form':form})
 
 
@@ -102,27 +150,42 @@ def nurse_signup_view(request):
 
 
 def patient_signup_view(request):
-    userForm=forms.PatientUserForm()
-    patientForm=forms.PatientForm()
-    mydict={'userForm':userForm,'patientForm':patientForm}
-    if request.method=='POST':
-        userForm=forms.PatientUserForm(request.POST)
-        patientForm=forms.PatientForm(request.POST,request.FILES)
+    userForm = forms.PatientUserForm()
+    patientForm = forms.PatientForm()
+    mydict = {'userForm': userForm, 'patientForm': patientForm}
+
+    if request.method == 'POST':
+        userForm = forms.PatientUserForm(request.POST)
+        patientForm = forms.PatientForm(request.POST, request.FILES)
+
         if userForm.is_valid() and patientForm.is_valid():
-            user=userForm.save()
+            user = userForm.save()
             user.set_password(user.password)
             user.save()
-            patient=patientForm.save(commit=False)
-            patient.user=user
-    # Adicionando paciente, mesmo sem médico para triagem
-            assignedDoctorId = request.POST.get('assignedDoctorId')
-            if assignedDoctorId:
-             patient.assignedDoctorId = int(assignedDoctorId)
-            patient.save()
+
+            patient = patientForm.save(commit=False)
+            patient.user = user
+
+            has_doctor = request.POST.get('has_doctor')
+            if has_doctor == 'yes':
+                assignedDoctorId = request.POST.get('assignedDoctorId')
+                if assignedDoctorId:
+                    patient.assigned_doctor_id = int(assignedDoctorId) #adicionando paciente ao medico se tiver
+            else:
+                patient.assigned_doctor = None
+
+            patient.save() #salvando paciente 
+
             my_patient_group = Group.objects.get_or_create(name='PATIENT')
             my_patient_group[0].user_set.add(user)
-        return HttpResponseRedirect('patientlogin')
-    return render(request,'hospital/patientsignup.html',context=mydict)
+
+            return HttpResponseRedirect('patientlogin')
+
+        else:
+            print("UserForm errors:", userForm.errors)
+            print("PatientForm errors:", patientForm.errors)
+
+    return render(request, 'hospital/patientsignup.html', context=mydict)
 
 
 
@@ -131,14 +194,30 @@ def patient_signup_view(request):
 
 #-----------for checking user is doctor , patient or admin(by sumit)
 def is_admin(user):
-    return user.groups.filter(name='ADMIN').exists()
+    if user.groups.filter(name='ADMIN').exists():
+             return True
+    raise PermissionDenied
 def is_doctor(user):
-    return user.groups.filter(name='DOCTOR').exists()
+    if user.groups.filter(name='DOCTOR').exists():
+        return True
+    raise PermissionDenied
 def is_patient(user):
-    return user.groups.filter(name='PATIENT').exists()
+    if user.groups.filter(name='PATIENT').exists():
+        return True
+    raise PermissionDenied
 #Adding nurse
 def is_nurse(user):
-    return user.groups.filter(name='NURSE').exists()
+    if user.groups.filter(name='NURSE').exists():
+        return True
+    raise PermissionDenied
+
+
+# CONTROL MEDICINE
+
+def is_admin_or_staff(user):
+    if user.groups.filter(name__in=['ADMIN', 'DOCTOR', 'NURSE']).exists():
+        return True
+    raise PermissionDenied
 
 
 #---------AFTER ENTERING CREDENTIALS WE CHECK WHETHER USERNAME AND PASSWORD IS OF ADMIN,DOCTOR OR PATIENT
@@ -166,7 +245,183 @@ def afterlogin_view(request):
             return render(request, 'hospital/patient_wait_for_approval.html')
     else:
         return redirect('admin-dashboard')  # ou mostre uma página de erro amigável
+###################################################################################
+##################  ADD MEDICINE VIEWS ############################################
+###################################################################################
 
+
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def medicines_page(request):
+    medicines = Medicine.objects.all().order_by('med_name')
+
+    context = {
+        "medicines": medicines
+    }
+    return render(request, "hospital/view-medicines.html", context)
+
+
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin_or_staff)
+def add_medicine_page(request):
+    form = AddMedicineForm()
+
+    if request.method == "POST":
+        form = AddMedicineForm(request.POST)
+        if form.is_valid():
+            med_code = form.cleaned_data.get("med_code")
+            med_name = form.cleaned_data.get("med_name")
+            lab = form.cleaned_data.get("lab")
+            stock = form.cleaned_data.get("stock")
+            description = form.cleaned_data.get("description")
+
+            medicine = Medicine(
+                med_code=med_code, med_name=med_name, lab=lab,
+                stock=stock, description=description
+            )
+            medicine.save()
+            messages.success(request, "Você adicionou novo medicamento ao estoque.")
+            return redirect("view-medicines")
+        return redirect("add-medicine")
+
+    context = {
+        "form": form
+    }
+    return render(request, "hospital/add-medicine.html", context)
+
+
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def update_medicine(request, pk):
+    medicine = get_object_or_404(Medicine, id=pk)
+    form = UpdateMedicineForm(instance=medicine)
+
+    if request.method == "POST":
+        form = UpdateMedicineForm(request.POST, instance=medicine)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Você Atualizou o estoque de medicamentos.")
+            return redirect("view-medicines")
+        return redirect("update-medicine")
+
+    context = {
+        "form": form,
+    }
+    return render(request, "hospital/update-medicine.html", context)
+
+
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def delete_medicine(request, pk):
+    medicine = get_object_or_404(Medicine, id=pk)
+    medicine.delete()
+    messages.success(request, "Você deletou com sucesso, medicamento do estoque.")
+    return redirect("view-medicines")
+
+
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin_or_staff)
+def use_medicine(request):
+    form = MedicineUsageForm()
+    if request.method == "POST":
+        form = MedicineUsageForm(request.POST)
+        if form.is_valid():
+            usage = form.save(commit=False)
+            usage.user = request.user
+
+            if usage.quantity > usage.medicine.stock:
+                messages.error(request, "Quantidade excede o estoque disponível.")
+            else:
+                try:
+                    usage.save()
+
+                    # Atualiza o estoque do medicamento
+                    usage.medicine.stock -= usage.quantity
+                    usage.medicine.save()
+
+                    # Cria o log de uso do medicamento
+                    MedicineLog.objects.create(
+                        user=request.user,
+                        medicine=usage.medicine,
+                        action='USE',
+                        quantity=usage.quantity,
+                        patient=usage.patient if hasattr(usage, 'patient') else None,
+                        notes=usage.notes
+                    )
+
+                    messages.success(request, "Medicamento utilizado com sucesso.")
+                except ValueError as e:
+                    messages.error(request, str(e))
+
+            return redirect("view-medicines")
+
+    return render(request, "hospital/usage-medicine.html", {"form": form})
+
+
+@login_required
+@user_passes_test(is_admin_or_staff)
+def medicine_report(request):
+    logs = MedicineLog.objects.select_related('medicine', 'user', 'patient').all()
+
+    # Filtros
+    start_date = request.GET.get('start_date')
+    end_date = request.GET.get('end_date')
+    medicine_id = request.GET.get('medicine')
+    patient_id = request.GET.get('patient')
+
+    if start_date:
+        logs = logs.filter(timestamp__date__gte=start_date)
+    if end_date:
+        logs = logs.filter(timestamp__date__lte=end_date)
+    if medicine_id:
+        logs = logs.filter(medicine_id=medicine_id)
+    if patient_id:
+        logs = logs.filter(patient_id=patient_id)
+
+    # PDF dos últimos 30 dias
+    if request.GET.get('pdf') == '1':
+        buffer = io.BytesIO()
+        doc = SimpleDocTemplate(buffer, pagesize=A4)
+        elements = []
+        styles = getSampleStyleSheet()
+
+        elements.append(Paragraph("Relatório de Uso de Medicamentos - Últimos 30 dias", styles["Heading2"]))
+
+        data = [["Data", "Medicamento", "Ação", "Usuário", "Quantidade", "Paciente", "Notas"]]
+        last_30_days = timezone.now() - timedelta(days=30)
+        logs_pdf = logs.filter(timestamp__gte=last_30_days)
+
+        for log in logs_pdf:
+            data.append([
+                log.timestamp.strftime("%d/%m/%Y %H:%M"),
+                log.medicine.med_name,
+                log.get_action_display(),
+                log.user.username,
+                log.quantity,
+                log.patient.full_name if log.patient else "-",
+                log.notes or "-"
+            ])
+
+        table = Table(data, repeatRows=1)
+        table.setStyle(TableStyle([
+            ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+            ("TEXTCOLOR", (0, 0), (-1, 0), colors.whitesmoke),
+            ("ALIGN", (0, 0), (-1, -1), "CENTER"),
+            ("GRID", (0, 0), (-1, -1), 0.5, colors.black),
+        ]))
+
+        elements.append(table)
+        doc.build(elements)
+
+        buffer.seek(0)
+        return FileResponse(buffer, as_attachment=True, filename="relatorio_medicamentos.pdf")
+
+    context = {
+        "logs": logs,
+        "medicines": Medicine.objects.all(),
+        "patients": Patient.objects.all(),
+    }
+    return render(request, "hospital/relatorio_remedios.html", context)
 
 
 
@@ -180,36 +435,51 @@ def afterlogin_view(request):
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_dashboard_view(request):
-    #for both table in admin dashboard
-    doctors=models.Doctor.objects.all().order_by('-id')
-    patients=models.Patient.objects.all().order_by('-id')
-    #adding nurses
-    nursers=models.Nurse.objects.all().order_by('-id')
-    nursecount=models.Nurse.objects.all().filter(status=True).count()
-    pendingnursecount=models.Nurse.objects.all().filter(status=True).count()
-    #for three cards
-    doctorcount=models.Doctor.objects.all().filter(status=True).count()
-    pendingdoctorcount=models.Doctor.objects.all().filter(status=False).count()
+    # Pegando médicos e adicionando o campo tipo manualmente
+    doctors = models.Doctor.objects.all().order_by('-id')
+    nurses = models.Nurse.objects.all().order_by('-id')
 
-    patientcount=models.Patient.objects.all().filter(status=True).count()
-    pendingpatientcount=models.Patient.objects.all().filter(status=False).count()
+    profissionais = []
 
-    appointmentcount=models.Appointment.objects.all().filter(status=True).count()
-    pendingappointmentcount=models.Appointment.objects.all().filter(status=False).count()
-    mydict={
-    'doctors':doctors,
-    'nursers':nursers,
-    'nursecount': nursecount,
-    'pendingnursecount': pendingnursecount,
-    'patients':patients,
-    'doctorcount':doctorcount,
-    'pendingdoctorcount':pendingdoctorcount,
-    'patientcount':patientcount,
-    'pendingpatientcount':pendingpatientcount,
-    'appointmentcount':appointmentcount,
-    'pendingappointmentcount':pendingappointmentcount,
+    for doc in doctors:
+        doc.tipo = 'Médico'  # Sobrescreve ou cria dinamicamente
+        profissionais.append(doc)
+
+    for nur in nurses:
+        nur.tipo = 'Enfermeiro'
+        profissionais.append(nur)
+
+    # Pacientes
+    patients = models.Patient.objects.all().order_by('-id')
+
+    # Contagens
+    doctorcount = models.Doctor.objects.filter(status=True).count()
+    pendingdoctorcount = models.Doctor.objects.filter(status=False).count()
+
+    nursecount = models.Nurse.objects.filter(status=True).count()
+    pendingnursecount = models.Nurse.objects.filter(status=False).count()
+
+    patientcount = models.Patient.objects.filter(status=True).count()
+    pendingpatientcount = models.Patient.objects.filter(status=False).count()
+
+    appointmentcount = models.Appointment.objects.filter(status=True).count()
+    pendingappointmentcount = models.Appointment.objects.filter(status=False).count()
+
+    context = {
+        'profissionais': profissionais,
+        'patients': patients,
+        'nursecount': nursecount,
+        'pendingnursecount': pendingnursecount,
+        'doctorcount': doctorcount,
+        'pendingdoctorcount': pendingdoctorcount,
+        'patientcount': patientcount,
+        'pendingpatientcount': pendingpatientcount,
+        'appointmentcount': appointmentcount,
+        'pendingappointmentcount': pendingappointmentcount,
     }
-    return render(request,'hospital/admin_dashboard.html',context=mydict)
+
+    return render(request, 'hospital/admin_dashboard.html', context)
+
 
 
 # this view for sidebar click on admin page
@@ -265,7 +535,7 @@ def update_doctor_view(request,pk):
 
 
 
-
+# achar add-medico #
 @login_required(login_url='adminlogin')
 @user_passes_test(is_admin)
 def admin_add_doctor_view(request):
@@ -604,10 +874,278 @@ def reject_appointment_view(request,pk):
 #---------------------------------------------------------------------------------
 #------------------------ ADMIN RELATED VIEWS END ------------------------------
 #---------------------------------------------------------------------------------
+#---------------------------------------------------------------------------------
+#------------------------ ESCALA RELATED VIEWS BEGIN ------------------------------
+#---------------------------------------------------------------------------------
 
 
 
 
+
+
+# ---------- PDF RELATÓRIOS ----------
+# ---------- PDF RELATÓRIOS ----------
+
+class PdfEscalas(View):                 
+    def get(self, request):           
+        escalas = Escala.objects.all()  
+        params = {
+            'escalas': escalas,
+            'request': request,
+        }
+        return Render.render('hospital/relatorio_escalas.html', params, 'relatorio-escalas')
+
+
+class Render:
+    @staticmethod
+    def render(path: str, params: dict, filename: str): 
+        template = get_template(path)
+        html = template.render(params)
+        response = io.BytesIO()
+        pdf = pisa.pisaDocument(io.BytesIO(html.encode("UTF-8")), response)
+
+        if not pdf.err:
+            response = HttpResponse(response.getvalue(), content_type='application/pdf')
+            response['Content-Disposition'] = f'attachment;filename={filename}.pdf'
+            return response
+        else:
+            return HttpResponse("Erro ao gerar PDF", status=400)
+
+
+# ---------- FOLGAS ----------
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def lista_folgas(request):
+    form = FolgaForm()
+    folgas = Folga.objects.all()
+    return render(request, 'hospital/lista_folgas.html', {
+        'form': form,
+        'folgas': folgas
+    })
+
+###### AQUI FOLGA NOVO ######
+
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def folga_novo(request):
+    form = FolgaForm(request.POST or None)
+
+    if request.method == "POST":
+        if form.is_valid():
+            try:
+                form.save()
+                sucesso = 'Folga cadastrada com sucesso!'
+                return render(request, 'hospital/lista_folgas.html', {
+                    'form': FolgaForm(),  # limpa o form
+                    'folgas': Folga.objects.all(),
+                    'sucesso': sucesso
+                })
+            except ValidationError as e:
+                erro = "; ".join(e.messages)
+        else:
+            erro = "Preencha todos os campos corretamente."
+
+        return render(request, 'hospital/lista_folgas.html', {
+            'form': form,
+            'folgas': Folga.objects.all(),
+            'erro': erro
+        })
+
+    return render(request, 'hospital/lista_folgas.html', {
+        'form': form,
+        'folgas': Folga.objects.all()
+    })
+######### RELATORIO DE FOLGAS ########
+
+
+class PdfFolgas(View):                 
+    def get(self, request):           
+        folgas = Folga.objects.all()  
+        params = {
+            'folgas': folgas,
+            'request': request,
+        }
+        return Render.render('hospital/relatorio_folgas.html', params, 'relatorio-folgas')
+
+
+######################################
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def folga_update(request, id):
+    folga = get_object_or_404(Folga, id=id)
+    form = FolgaForm(request.POST or None, instance=folga)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            return redirect('hospital_lista_folgas')
+
+    return render(request, 'hospital/update_folgas.html', {'form': form, 'folga': folga})
+
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def folga_delete(request, id):
+    folga = get_object_or_404(Folga, id=id)
+    if request.method == 'POST':
+        folga.delete()
+        return redirect('hospital_lista_folgas')
+    return render(request, 'hospital/delete_confirm.html', {'obj': folga})
+
+# ---------- ESCALAS ----------
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def lista_escalas(request):
+    escalas = Escala.objects.filter(disponivel=True)
+    form = EscalaForm()
+    return render(request, 'hospital/lista_escalas.html', {'escalas': escalas, 'form': form})
+
+##### AJUSTANDO PARA BOTAR A ESCALA #######
+
+
+##### ESCALA NOVO #####
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def escala_novo(request):
+    form = EscalaForm(request.POST or None)
+
+    if request.method == "POST":
+        if form.is_valid():
+            try:
+                form.save()
+                sucesso = 'Escala cadastrada com sucesso!'
+                return render(request, 'hospital/lista_escalas.html', {
+                    'form': EscalaForm(),
+                    'escalas': Escala.objects.filter(disponivel=True),
+                    'sucesso': sucesso
+                })
+            except ValidationError as e:
+                erro = "; ".join(e.messages)
+        else:
+            erro = "Preencha todos os campos corretamente."
+
+        return render(request, 'hospital/lista_escalas.html', {
+            'form': form,
+            'escalas': Escala.objects.filter(disponivel=True),
+            'erro': erro
+        })
+
+    # GET: exibir a página normalmente
+    escalas = Escala.objects.filter(disponivel=True)
+    return render(request, 'hospital/lista_escalas.html', {
+        'form': form,
+        'escalas': escalas
+    })
+
+
+
+#############################################
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def escala_update(request, id):
+    escala = Escala.objects.get(id=id)
+    form = EscalaForm(request.POST or None, instance=escala)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            return redirect('hospital_lista_escalas')
+
+    return render(request, 'hospital/update_escala.html', {'form': form, 'escala': escala})
+
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def escala_delete(request, id):
+    escala = Escala.objects.get(id=id)
+    if request.method == 'POST':
+        escala.delete()
+        return redirect('hospital_lista_escalas')
+    return render(request, 'hospital/delete_confirm2.html', {'obj': escala})
+
+
+# ---------- POSTOS / UNIDADES ----------
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def lista_unidades(request):
+    unidades = Unidade.objects.filter(disponivel=True)
+    form = UnidadeForm()
+    return render(request, 'hospital/lista_unidades.html', {'unidades': unidades, 'form': form})
+
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def unidade_novo(request):
+    form = UnidadeForm(request.POST or None)
+    if form.is_valid():
+        form.save()
+        sucesso = 'Unidade de Saúde cadastrada com sucesso!'
+        unidades = Unidade.objects.filter(disponivel=True)
+        return render(request, 'hospital/lista_unidades.html', {'unidades': unidades, 'form': UnidadeForm(), 'sucesso': sucesso})
+    return redirect('hospital_lista_unidades')
+
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def unidade_update(request, id):
+    unidade = get_object_or_404(Unidade, id=id)
+    form = UnidadeForm(request.POST or None, instance=unidade)
+
+    if request.method == 'POST':
+        if form.is_valid():
+            form.save()
+            return redirect('hospital_lista_unidades')
+
+    return render(request, 'hospital/update_unidade.html', {'form': form, 'unidade': unidade})
+
+
+
+
+
+
+#############################################################################
+
+############################################################################
+###############################################################################
+##################################################################################
+################# ROOM, ROOMHISTORY ########################################
+
+
+
+# Lista de quartos
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def lista_quartos(request):
+    quartos = Room.objects.select_related('paciente__assigned_doctor').all()
+    return render(request, 'hospital/lista_quartos.html', {'quartos': quartos})
+
+# Detalhe de um quarto
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def detalhe_quarto(request, id):
+    quarto = get_object_or_404(Room, id=id)
+    return render(request, 'hospital/detalhe_quarto.html', {'quarto': quarto})
+
+# Histórico de quartos
+@login_required(login_url='adminlogin')
+@user_passes_test(is_admin)
+def historico_quartos(request):
+    historico = RoomHistory.objects.select_related('paciente', 'room').all()
+    return render(request, 'hospital/historico_quartos.html', {'historico': historico})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#---------------------------------------------------------------------------------
+#------------------------ ESCALA RELATED VIEWS END ------------------------------
+#---------------------------------------------------------------------------------
 
 
 #---------------------------------------------------------------------------------
@@ -1092,5 +1630,5 @@ def contactus_view(request):
 
 
 #Developed By : Neto Sarmento
-#Instagram : nort_dev
+#Instagram : norte_dev
 #Geral : Tech Norte Soluções

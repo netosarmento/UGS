@@ -1,0 +1,265 @@
+<style>
+  /* Estilo base para títulos e seções */
+  h2 {
+    text-align: center;
+    margin-top: 20px;
+    font-weight: 600;
+    color: #333;
+  }
+
+  form {
+    padding: 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin-bottom: 30px;
+  }
+
+  label {
+    font-weight: 500;
+  }
+
+  .form-control,
+  .form-select {
+    border-radius: 6px;
+    box-shadow: none;
+  }
+
+  .btn {
+    min-width: 150px;
+  }
+
+  /* Estilo para tabela */
+  table {
+    width: 100%;
+    background-color: #fff;
+    border-collapse: collapse;
+  }
+
+  table th,
+  table td {
+    padding: 10px;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  table thead {
+    background-color: #007bff;
+    color: #fff;
+  }
+
+  table tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+
+  .text-center {
+    text-align: center;
+  }
+
+  /* Responsividade */
+  @media (max-width: 980px) {
+    .row.g-3 {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+    }
+
+    .col-md-3 {
+      flex: 1 1 45%;
+    }
+
+    .col-12 {
+      flex: 1 1 100%;
+      text-align: center;
+    }
+  }
+
+  @media (max-width: 768px) {
+    .col-md-3 {
+      flex: 1 1 100%;
+    }
+
+    .form-control,
+    .form-select {
+      font-size: 16px;
+    }
+
+    table th,
+    table td {
+      font-size: 14px;
+      padding: 8px;
+    }
+
+    .btn {
+      margin-top: 10px;
+    }
+  }
+
+  @media (max-width: 640px) {
+    h2 {
+      font-size: 20px;
+    }
+
+    .btn {
+      width: 100%;
+    }
+
+    .form-control,
+    .form-select {
+      width: 100%;
+    }
+
+    table thead {
+      display: none;
+    }
+
+    table, table tbody, table tr, table td {
+      display: block;
+      width: 100%;
+    }
+
+    table tr {
+      margin-bottom: 15px;
+      border: 1px solid #ddd;
+      padding: 10px;
+      background-color: #fff;
+    }
+
+    table td {
+      text-align: left;
+      position: relative;
+      padding-left: 50%;
+    }
+
+    table td::before {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 45%;
+      white-space: nowrap;
+      font-weight: bold;
+      color: #555;
+    }
+
+    /* Rótulos manuais para cada campo */
+    table td:nth-of-type(1)::before { content: "Data"; }
+    table td:nth-of-type(2)::before { content: "Medicamento"; }
+    table td:nth-of-type(3)::before { content: "Ação"; }
+    table td:nth-of-type(4)::before { content: "Usuário"; }
+    table td:nth-of-type(5)::before { content: "Quantidade"; }
+    table td:nth-of-type(6)::before { content: "Paciente"; }
+    table td:nth-of-type(7)::before { content: "Notas"; }
+  }
+
+  /* Botão de voltar */
+.btn-back {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background-color: #007bff;
+  color: white;
+  padding: 8px 16px;
+  border-radius: 6px;
+  text-decoration: none;
+  font-weight: 500;
+  transition: background-color 0.3s ease;
+  z-index: 1000;
+}
+
+.btn-back:hover {
+  background-color: #0056b3;
+}
+
+/* Responsividade do botão de voltar */
+@media (max-width: 768px) {
+  .btn-back {
+    top: 10px;
+    left: 10px;
+    padding: 6px 12px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 480px) {
+  .btn-back {
+    width: calc(100% - 20px);
+    left: 10px;
+    right: 10px;
+    text-align: center;
+  }
+}
+
+</style>
+
+<a href="{% url 'view-medicines' %}" class="btn-back">← Voltar</a>
+
+<h2>Relatório de Ações com Medicamentos</h2>
+
+<form method="get" class="mb-3">
+  <div class="row g-3">
+    <div class="col-md-3">
+      <label for="start_date">Data Início</label>
+      <input type="date" name="start_date" class="form-control" value="{{ request.GET.start_date }}">
+    </div>
+    <div class="col-md-3">
+      <label for="end_date">Data Fim</label>
+      <input type="date" name="end_date" class="form-control" value="{{ request.GET.end_date }}">
+    </div>
+    <div class="col-md-3">
+      <label>Medicamento</label>
+      <select name="medicine" class="form-select">
+        <option value="">Todos</option>
+        {% for med in medicines %}
+        <option value="{{ med.id }}" {% if request.GET.medicine == med.id|stringformat:"s" %}selected{% endif %}>
+          {{ med.med_name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-md-3">
+      <label>Paciente</label>
+      <select name="patient" class="form-select">
+        <option value="">Todos</option>
+        {% for p in patients %}
+        <option value="{{ p.id }}" {% if request.GET.patient == p.id|stringformat:"s" %}selected{% endif %}>
+          {{ p.full_name }}
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+    <div class="col-12">
+      <button type="submit" class="btn btn-primary">Filtrar</button>
+      <a href="?pdf=1" class="btn btn-outline-success">📄 Baixar PDF (últimos 30 dias)</a>
+    </div>
+  </div>
+</form>
+
+<table class="table table-bordered mt-4">
+  <thead>
+    <tr>
+      <th>Data</th>
+      <th>Medicamento</th>
+      <th>Ação</th>
+      <th>Usuário</th>
+      <th>Quantidade</th>
+      <th>Paciente</th>
+      <th>Notas</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for log in logs %}
+    <tr>
+      <td>{{ log.timestamp|date:"d/m/Y H:i" }}</td>
+      <td>{{ log.medicine.med_name }}</td>
+      <td>{{ log.get_action_display }}</td>
+      <td>{{ log.user.username }}</td>
+      <td>{{ log.quantity }}</td>
+      <td>{{ log.patient.full_name }}</td>
+      <td>{{ log.notes }}</td>
+    </tr>
+    {% empty %}
+    <tr>
+      <td colspan="7" class="text-center">Nenhum registro encontrado.</td>
+    </tr>
+    {% endfor %}
+  </tbody>
+</table>

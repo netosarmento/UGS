@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 
 {% load widget_tweaks %}
-<html lang="en" dir="ltr">
+<html lang="pt-br" dir="ltr">
 
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>LazyCoder || sumit</title>
+  <title>UGS|| MEDICAL WEB</title>
   <style type="text/css">
     body {
       color: #aa082e;
@@ -67,23 +67,23 @@
     <div class="container register-form">
       <div class="form">
         <div class="note">
-          <p>Register to Hospital</p>
+          <p>Registrar no Hospital</p>
         </div>
 
         <div class="form-content">
           <div class="row">
             <div class="col-md-6">
               <div class="form-group">
-                {% render_field userForm.first_name class="form-control" placeholder="First Name" %}
+                {% render_field userForm.first_name class="form-control" placeholder="Primeiro Nome" %}
               </div>
               <div class="form-group">
                 {% render_field userForm.username class="form-control" placeholder="Username" %}
               </div>
               <div class="form-group">
-                {% render_field patientForm.address class="form-control" placeholder="Address" %}
+                {% render_field patientForm.address class="form-control" placeholder="Endereco" %}
               </div>
               <div class="form-group">
-                {% render_field patientForm.symptoms class="form-control" placeholder="Symptoms" %}
+                {% render_field patientForm.symptoms class="form-control" placeholder="Sintomas" %}
               </div>
               <div class="form-group">
                 {% render_field patientForm.profile_pic required="required" class="form-control" placeholder="Profile Picture" %}
@@ -91,22 +91,30 @@
             </div>
             <div class="col-md-6">
               <div class="form-group">
-                {% render_field userForm.last_name class="form-control" placeholder="Last Name" %}
+                {% render_field userForm.last_name class="form-control" placeholder="Sobrenome" %}
               </div>
               <div class="form-group">
                 {% render_field userForm.password class="form-control" placeholder="Password" %}
               </div>
               <div class="form-group">
-                {% render_field patientForm.mobile class="form-control" pattern="[6789][0-9]{9}" placeholder="Mobile Number" %}
+                {% render_field patientForm.mobile class="form-control" pattern="[0-9]{10,11}" placeholder="Telefone com DDD" %}
               </div>
+        <!-- ADICIONANDO ESPAÇO PARA ESPECIFICAR MEDICO SE TIVER   -->
               <div class="form-group">
-                {% render_field patientForm.assignedDoctorId class="form-control" placeholder="Doctor" %}
+                <label>Você já tem acompanhamento de um médico?</label><br>
+                  <input type="radio" name="has_doctor" value="yes" checked onclick="document.getElementById('doctor-select').style.display='block'"> Sim
+                  <input type="radio" name="has_doctor" value="no" onclick="document.getElementById('doctor-select').style.display='none'"> Não
               </div>
+
+              <div id="doctor-select" class="form-group">
+                {% render_field patientForm.assignedDoctorId class="form-control" placeholder="Médico" %}
+              </div>
+              
 
             </div>
           </div>
-          <button type="submit" class="btnSubmit">Register</button>
-          <div class="text-center">Already have an account? <a href="patientlogin">Login here</a></div>
+          <button type="submit" class="btnSubmit">Registrar</button>
+          <div class="text-center">Ja tem uma conta? <a href="patientlogin">Login here</a></div>
         </div>
       </div>
     </div>
@@ -114,11 +122,42 @@
   </form>
 
   {% include "hospital/footer.html" %}
+
+<script>
+  function toggleDoctorSelect(show) {
+    const field = document.getElementById('doctor-select');
+    const select = document.getElementById('id_assignedDoctorId');
+    
+    field.style.display = show ? 'block' : 'none';
+    
+    if (show) {
+      select.setAttribute('required', 'required');
+    } else {
+      select.removeAttribute('required');
+    }
+  }
+
+  window.onload = function () {
+    const radios = document.querySelectorAll('input[name="has_doctor"]');
+    radios.forEach((radio) => {
+      radio.addEventListener('change', function () {
+        toggleDoctorSelect(this.value === 'yes');
+      });
+    });
+
+    // Inicializa o estado corretamente ao carregar a página
+    const selected = document.querySelector('input[name="has_doctor"]:checked');
+    toggleDoctorSelect(selected && selected.value === 'yes');
+  };
+</script>
+
+
+  
 </body>
 <!--
-developed By : sumit kumar
-facebook : fb.com/sumit.luv
-youtube : youtube.com/lazycoders
+developed By : Neto Sarmento  
+Instagram : norte_dev
+MEI : Tech Norte Soluções
 -->
 
 </html>

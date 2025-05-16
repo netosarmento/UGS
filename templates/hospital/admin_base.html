@@ -4,14 +4,14 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>LazyCoder || sumit</title>
-
+  <title>UGS || MEDWEB</title>
+  
   <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
   <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
-
+  <link rel="stylesheet" href="{% static 'css/rooms.css' %}">
   <link rel="stylesheet" href="{% static '/style.css' %}">
 
 
@@ -280,16 +280,23 @@
   <nav class="menu" tabindex="0">
     <div class="smartphone-menu-trigger"></div>
     <header class="avatar">
-      <img src="{% static "images/adminpropic.png" %}" />
+      
+     <img src="{% static 'images/adminpropic.png' %}" alt="Admin Foto de Perfil" style="margin-top: 20px;" />
+
       <br><br>
       <h6>Admin</h6>
       <h2>{{request.user.first_name}}</h2>
     </header>
     <ul>
       <li tabindex="0" class="icon-dashboard"> <a style="color:white; text-decoration:none;" href="/admin-dashboard"><span>Dashboard</span></a> </li>
-      <li tabindex="0" class="icon-customers"> <a style="color:white; text-decoration:none;" href="/admin-doctor"><span>Doctor</span></a></li>
-      <li tabindex="0" class="icon-users"> <a style="color:white; text-decoration:none;" href="/admin-patient"><span>Patient</span></a></li>
-      <li tabindex="0" class="icon-calendar"> <a style="color:white; text-decoration:none;" href="/admin-appointment"><span>Appointment</span></a></li>
+      <li tabindex="0" class="icon-customers"> <a style="color:white; text-decoration:none;" href="/admin-doctor"><span>Médicos</span></a></li>
+      <li tabindex="0" class="icon-users"> <a style="color:white; text-decoration:none;" href="/admin-patient"><span>Pacientes</span></a></li>
+      <li tabindex="0" class="icon-calendar"> <a style="color:white; text-decoration:none;" href="/admin-appointment"><span>Consultas</span></a></li>
+      <li tabindex="0" class="icon-calendar"> <a style="color:white; text-decoration:none;" href="{% url 'hospital_lista_escalas' %}"><span>Escala</span></a></li>
+      <li tabindex="0" class="icon-calendar"> <a style="color:white; text-decoration:none;" href="{% url 'hospital_lista_folgas' %}"><span>Folgas</span></a></li>
+      <li tabindex="0" class="icon-calendar"> <a style="color:white; text-decoration:none;" href="#"><span>Quartos</span></a></li>
+      <li tabindex="0" class="icon-calendar"> <a style="color:white; text-decoration:none;" href="{% url 'hospital_lista_unidades' %}"><span>Unidade de Saúde</span></a></li>
+      <li tabindex="0" class="icon-calendar"> <a style="color:white; text-decoration:none;" href="{% url 'view-medicines' %}"><span>Controle Medicamentos</span></a></li>
     </ul>
   </nav>
 
@@ -299,14 +306,19 @@
     <!-- nav start -->
     <div class="bs-example">
       <nav class="navbar navbar-expand-md  navbar-dark fixed-top" style="background:#337AB7;">
-        <a href="/admin-dashboard" class="navbar-brand">HOSPITAL MANAGEMENT</a>
+        <a href="/admin-dashboard" class="navbar-brand">UGS | MEDICALWEB</a>
         <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbarCollapse">
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-          <div class="navbar-nav" style=" margin-left: 90%;">
-
-            <a href="/logout" class="nav-item nav-link">Logout</a>
+          <div class="navbar-nav" style="margin-left: 90%;">
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+               <button type="submit" class="nav-item nav-link btn btn-link" style="padding: 0; border: none; background: none;">
+               Logout
+            </button>
+        </form>
+    </div>
           </div>
         </div>
       </nav>
@@ -337,8 +349,8 @@
         <div class="row">
           <div class="col-md-12 col-sm-12">
             <div style="color:#ffffff;" class="wow fadeInUp footer-copyright">
-              <p>Made in India <br>
-                Copyright &copy; 2020 LazyCoder </p>
+              <p>Made in Brasil <br>
+                Copyright &copy; 2025 UGS MEDICAL WEB </p>
             </div>
           </div>
         </div>
@@ -347,9 +359,9 @@
 
   </main>
   <!--
-  developed By : sumit kumar
-  facebook : fb.com/sumit.luv
-  youtube : youtube.com/lazycoders
+  developed By : Neto Sarmento
+  Instagram : norte_dev
+  MEI : Tech Norte Soluções
   -->
 
 </body>

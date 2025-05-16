@@ -1,0 +1,18 @@
+{% extends 'hospital/admin_base.html' %}
+{% block content %}
+<h2>Lista de Quartos</h2>
+
+{% for quarto in quartos %}
+    <div class="room-card">
+        <h3>Quarto {{ quarto.numero }} - {{ quarto.tipo }}</h3>
+        {% if quarto.paciente %}
+            <p><strong>Paciente:</strong> {{ quarto.paciente.get_name }}</p>
+            <a href="{% url 'hospital_detalhe_quarto' quarto.id %}">Ver detalhes</a>
+        {% else %}
+            <p><em>Disponível</em></p>
+        {% endif %}
+    </div>
+{% empty %}
+    <p>Nenhum quarto cadastrado.</p>
+{% endfor %}
+{% endblock content %}

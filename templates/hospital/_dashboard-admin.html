@@ -1,0 +1,90 @@
+{% load static %}
+
+<div class="dashboard_header" id="sidebarToggleButton">
+    <div class="dasboard_sidebar">
+        <nav class="sidenav_bar sidenav-d-none" id="sideNavBar">
+
+            <div class="dashboard_logo">
+                <div class="logo_flex">
+                    <img src="{% static 'images/logo.png' %}" alt="" class="img-responsive">
+
+                    <span class="text">
+                        Medical Store
+                    </span>
+                </div>
+            </div>
+
+            <hr class="hr_sidenav">
+
+            <div class="sidebar_main">
+                <ul class="sidebar">
+                    <li class="sidebar_item">
+                        <a href="{% url 'home' %}" class="item_link">
+                            <i class="fa fa-television" aria-hidden="true"></i>
+                            <span class="item_text sidebar_active">
+                                Dashboard
+                            </span>
+                        </a>
+                    </li>
+                    
+                    <li class="sidebar_item">
+                        <a class="item_link" id="medicineID">
+                            <i class="fas fa-pills    "></i>
+                            <span class="item_text">
+                                Medicines
+                            </span>
+                        </a>
+
+                        <div class="medicine__items" id="medicineItems">
+                            <a href="{% url 'home' %}" class="dealer__item">
+                                > Add Medicine
+                            </a>
+                            <a href="{% url 'home' %}" class="dealer__item">
+                                > View Medicines
+                            </a>
+                        </div>
+                    </li>
+                    
+                    
+                    <li class="sidebar_item">
+                        <a href="{% url 'home' %}" class="item_link">
+                            <i class="fa fa-power-off" aria-hidden="true"></i>
+                            <span class="item_text">
+                                Logout
+                            </span>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+
+    <!-- Dashboard Navbar -->
+    <div class="dashboard_navbar" id=mainNavBar>
+        <nav class="navbar navbar-expand-sm navbar-light bg-light sticky-top">
+            <div class="container-fluid">
+                <div class="dashboard_sidebar_button">
+                    <button class="sidebar_button" id="sidebarToggleButton">
+                        <i class="fa fa-bars" aria-hidden="true"></i>
+                    </button>
+                </div>
+
+                <a class="navbar-brand nav_image" href="#">
+                    <img src="{% static 'images/medicine.png' %}" alt="" class="img-responsive">
+                    <span class="nav_span" style="font-weight: 550;">
+                        Olá, {{ request.user.username }}!
+                    </span>
+                </a>
+
+                {% comment %} <div class="navbar-nav">
+                    <div class="navbar_flex">
+                        <a href="{% url 'store:confirm-logout' %}" class="nav-link logout">
+                            <i class="fa fa-power-off" aria-hidden="true"></i>
+                            Logout
+                        </a>
+                    </div>
+                </div> {% endcomment %}
+            </div>
+        </nav>
+    </div>
+</div>

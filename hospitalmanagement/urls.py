@@ -14,13 +14,49 @@ from django.contrib import admin
 from django.urls import path, include
 from hospital import views
 from django.contrib.auth.views import LoginView,LogoutView
+from django.conf.urls import handler403
+from hospital.views import (
+    # Unidades de Saúde
+    lista_unidades,
+    unidade_novo,
+    unidade_update,
+    # Escalas
+    PdfEscalas,
+    lista_escalas,
+    escala_novo,
+    escala_update,
+    escala_delete,
+    # Folgas
+    lista_folgas,
+    PdfFolgas,
+    folga_novo,
+    folga_update,
+    folga_delete,
+    # Controle Medicamentos
+    medicines_page,
+    add_medicine_page,
+    update_medicine,
+    delete_medicine,
+    use_medicine,
+    medicine_report,
+    
+    ####### ADICIONANDO ROOM e ROOMHISTORY
+    
+    lista_quartos,
+    detalhe_quarto,
+    historico_quartos
+    
+)
 
+
+handler403 = 'django.views.defaults.permission_denied'
 
 #-------------FOR ADMIN RELATED URLS
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('',views.home_view,name=''),
+    path('',views.home_view,name='home'),
     path('api/', include('api.urls')),  # Inclua as URLs do aplicativo
+    
 
 
     path('aboutus', views.aboutus_view),
@@ -37,11 +73,15 @@ urlpatterns = [
     path('nursesignup', views.nurse_signup_view, name='nursesignup'),
     path('patientsignup', views.patient_signup_view),
     
-    path('adminlogin', LoginView.as_view(template_name='hospital/adminlogin.html')),
-    path('doctorlogin', LoginView.as_view(template_name='hospital/doctorlogin.html')),
-    path('patientlogin', LoginView.as_view(template_name='hospital/patientlogin.html')),
-    path('nurselogin', LoginView.as_view(template_name='hospital/nurselogin.html')),
+    
+    ############ ADICIONANDO ERRO LOGIN USUARIO NAO CADASTRADO ####################
+    path('adminlogin', LoginView.as_view(template_name='hospital/adminlogin.html'), name='adminlogin'),
+    path('doctorlogin', LoginView.as_view(template_name='hospital/doctorlogin.html'), name='doctorlogin'),
+    path('patientlogin', LoginView.as_view(template_name='hospital/patientlogin.html'), name='patientlogin'),
+    path('nurselogin', LoginView.as_view(template_name='hospital/nurselogin.html'), name='nurselogin'),
 
+    
+    
     path('afterlogin', views.afterlogin_view,name='afterlogin'),
     path('logout', LogoutView.as_view(template_name='hospital/index.html'),name='logout'),
 
@@ -139,7 +179,52 @@ urlpatterns +=[
     path('searchdoctor', views.search_doctor_view,name='searchdoctor'),
     path('patient-discharge', views.patient_discharge_view,name='patient-discharge'),
 
+
+
+######################################################################################
+######################################################################################
+####################### ESCALAS, ROOM, ROOMHISTORY ###################################
+
+    # Postos / Unidades
+    path('unidades', lista_unidades, name='hospital_lista_unidades'),
+    path('unidade-novo', unidade_novo, name='hospital_unidade_novo'),
+    path('unidade-update/<int:id>/', unidade_update, name='hospital_unidade_update'),
+
+    # Escalas
+    path('escalas', lista_escalas, name='hospital_lista_escalas'),
+    path('escala-novo', escala_novo, name='hospital_escala_novo'),
+    path('escala-update/<int:id>/', escala_update, name='hospital_escala_update'),
+    path('escala-delete/<int:id>/', escala_delete, name='hospital_escala_delete'),
+    path('relatorio-pdf/', PdfEscalas.as_view(), name='relatorio_pdf_escalas'),
+
+    ###### Folgas #####
+    path('folgas', lista_folgas, name='hospital_lista_folgas'),
+    path('folga-novo', folga_novo, name='hospital_folga_novo'),
+    path('folga-update/<int:id>/', folga_update, name='hospital_folga_update'),
+    path('folga-delete/<int:id>/', folga_delete, name='hospital_folga_delete'),
+    path('relatorio-folgas-pdf/', PdfFolgas.as_view(), name='relatorio_pdf_folgas'),
+
+######################## ROOM, ROOMHISTORY ####################################
+
+
+# Rooms # 
+  path('quartos/', views.lista_quartos, name='hospital_lista_quartos'),
+  path('quarto/<int:id>/', views.detalhe_quarto, name='hospital_detalhe_quarto'),
+  path('quartos/historico/', views.historico_quartos, name='hospital_historico_quartos'),
+
+
+############################ MEDICINE URLS CRUD ##########################################
+
+  # Medicine CRUD
+  path('medicines/', medicines_page, name="view-medicines"),
+  path('medicines/add-medicine/', add_medicine_page, name="add-medicine"),
+  path('medicines/update-medicine/<int:pk>/', update_medicine, name="update-medicine"),
+  path('medicines/delete-medicine/<int:pk>/', delete_medicine, name="delete-medicine"),
+  path('medicines/use/', use_medicine, name="use-medicine"),
+  path('medicines/relatorio/', medicine_report, name='relatorio-remedios'),
+
 ]
 
+
 #Developed By : Tech Norte Soluções
-#Instagram: nort_dev
+#Instagram: norte_dev

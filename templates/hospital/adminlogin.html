@@ -5,7 +5,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-  <title>LazyCoder || sumit</title>
+  <title>UGS || MEDICALWEB</title>
 
 
   <style type="text/css">
@@ -59,10 +59,15 @@
   <!--- login page for admin by admin(sumit)  ---------->
   <form method="post">
     {% csrf_token %}
+    {% if form.errors %}
+      <div class="alert alert-danger" role="alert">
+       Usuário ou senha inválidos.
+      </div>
+    {% endif %}
     <div class="container register-form">
       <div class="form">
         <div class="note">
-          <p>Admin Login Page</p>
+          <p>Admin Login Pagina</p>
         </div>
 
         <div class="form-content">
@@ -93,7 +98,7 @@
   <br><br><br>
   <!--
   developed By : Neto Sarmento
-  Instagram: nort_dev
+  Instagram: norte_dev
   geral: Tech Norte Soluções
   -->
 

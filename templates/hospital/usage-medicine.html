@@ -1,0 +1,86 @@
+{% extends 'hospital/admin_base.html' %}
+{% load static %}
+
+{% block title %}
+Medicamento :: Uso de Medicamento
+{% endblock title %}
+
+{% block content %}
+<section id="dashboard_section" class="dashboard_section" style="margin-top: 30px;">
+
+  
+    
+
+    <div class="container mt-4">
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h3 class="card-title mb-4">Registrar Uso de Medicamento</h3>
+
+                <form method="POST" novalidate>
+                    {% csrf_token %}
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label for="id_medicine" class="form-label">Medicamento</label>
+                            {{ form.medicine|add_class:"form-select" }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="id_quantity" class="form-label">Quantidade</label>
+                            {{ form.quantity|add_class:"form-control" }}
+                        </div>
+
+                        <div class="col-md-6">
+                            <label for="id_patient" class="form-label">Paciente</label>
+                            {{ form.patient|add_class:"form-select" }}
+                        </div>
+
+                        <div class="col-12">
+                            <label for="id_notes" class="form-label">Observações</label>
+                            {{ form.notes|add_class:"form-control" }}
+                        </div>
+
+                        <div class="col-12 pt-3">
+                            <button type="submit" class="btn btn-primary w-100">Registrar Uso</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}
+
+
+<style>
+@media (max-width: 980px) {
+    h3.card-title {
+        font-size: 1.4rem;
+    }
+    .btn {
+        font-size: 0.95rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .card-body {
+        padding: 1.2rem;
+    }
+    h3.card-title {
+        font-size: 1.2rem;
+    }
+}
+
+@media (max-width: 640px) {
+    .card-body {
+        padding: 1rem;
+    }
+    .form-label {
+        font-size: 0.95rem;
+    }
+    .btn {
+        font-size: 0.9rem;
+    }
+}
+</style>
+{% endblock %}

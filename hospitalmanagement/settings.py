@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/3.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
-
+from django.conf.urls import handler403
 import os
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -27,7 +27,7 @@ SECRET_KEY = 'hpbv()ep00boce&o0w7z1h)st148(*m@6@-rk$nn)(n9ojj4c0'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -43,6 +43,9 @@ INSTALLED_APPS = [
     'api', #Adicionando o app api
         'hospital',
         'widget_tweaks',
+    # Adicionar bootstrap 
+    'django_bootstrap5',
+    'bootstrap4',
 ]
 
 MIDDLEWARE = [
@@ -73,8 +76,11 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'hospitalmanagement.wsgi.application'
+# BLOQUEI TEMPLATE USER NAO LOGADOS
+handler403 = 'django.views.defaults.permission_denied'
 
+WSGI_APPLICATION = 'hospitalmanagement.wsgi.application'
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases

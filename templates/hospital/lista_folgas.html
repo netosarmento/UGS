@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+{% block menu %}
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link" href="/admin-dashboard">Dashboard</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'hospital_lista_escalas' %}">Escalas de Médicos</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'admin-doctor' %}">Cadastro de Médicos</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link active" href="{% url 'hospital_lista_unidades' %}">Cadastro de Unidade de Saúde</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'hospital_lista_folgas' %}">Cadastro de Folgas</a>
+        </li>
+    </ul>
+{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="col-6">
+        <br>
+        <h2 class="btn btn-info btn-lg btn-block">Cadastro de Folgas</h2>
+
+        {% if sucesso %}
+            <p class="btn btn-success">{{ sucesso }}</p>
+        {% endif %}
+
+        <form action="{% url 'hospital_folga_novo' %}" method="POST">
+        {% csrf_token %}
+        {% if form.non_field_errors %}
+           <div class="alert alert-danger">
+             {{ form.non_field_errors }}
+            </div>
+        {% endif %}
+        {% bootstrap_form form %}
+
+        <button type="submit" class="btn btn-primary">Cadastrar</button>
+        </form>
+    </div>
+
+    <div class="col-6">
+        <br>
+        <h1 class="btn btn-info btn-lg btn-block">Lista de Folgas </h1>
+        <table class="table">
+           <thead class="thead-dark">
+             <tr>
+                <th>ID</th>
+                <th>Data</th>
+                <th>Médico</th>
+                <th>Enfermeiro</th>
+                <th>Editar</th>
+            </tr>
+        </thead>
+        <tbody>
+        {% for folga in folgas %}
+        <tr>
+            <td>{{ folga.id }}</td>
+            <td>{{ folga.data }}</td>
+            <td>{{ folga.medico }}</td>
+            <td>{{ folga.enfermeiro }}</td>
+            <td>
+                <a class="btn btn-outline-dark" href="{% url 'hospital_folga_update' folga.id %}">Editar</a>
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+     <a class="btn btn-outline-success" href="{% url 'relatorio_pdf_folgas' %}">Baixar Relatório PDF de Folgas</a>    
+    </div>
+</div>
+
+
+    
+{% endblock  %}

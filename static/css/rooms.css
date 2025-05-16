@@ -1,0 +1,42 @@
+body {
+    font-family: Arial, sans-serif;
+    padding: 1rem;
+    background: #f7f7f7;
+}
+
+.room-card, .quarto-detalhe, .historico-card {
+    background: white;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    padding: 1rem;
+}
+
+h2, h3 {
+    color: #2c3e50;
+}
+
+/* Responsividade */
+@media screen and (max-width: 980px) {
+    body {
+        font-size: 95%;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    body {
+        font-size: 90%;
+    }
+    .room-card, .quarto-detalhe {
+        padding: 0.8rem;
+    }
+}
+
+@media screen and (max-width: 640px) {
+    body {
+        font-size: 85%;
+    }
+    .room-card, .quarto-detalhe {
+        padding: 0.6rem;
+    }
+}

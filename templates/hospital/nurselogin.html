@@ -60,6 +60,11 @@
   <!--- login page for doctor by admin(sumit)  ---------->
   <form method="post">
     {% csrf_token %}
+    {% if form.errors %}
+      <div class="alert alert-danger" role="alert">
+       Usuário ou senha inválidos.
+      </div>
+    {% endif %}
     <div class="container register-form">
       <div class="form">
         <div class="note">

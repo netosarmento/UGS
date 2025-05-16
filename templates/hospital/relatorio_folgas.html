@@ -1,0 +1,27 @@
+<style>
+    .red {
+        color: red;
+    }
+    .blue {
+        color: blue;
+    }
+</style>
+
+<h1 class="red">Relatório de Folgas</h1>
+<table>
+  <tr class="blue">
+    <th>ID</th>
+    <th>Data</th>
+    <th>Médico</th>
+    <th>Enfermeiro</th>
+  </tr>
+
+  {% for folga in folgas %}
+  <tr>
+    <td>{{ folga.id }}</td>
+    <td>{{ folga.data }}</td>
+    <td>{{ folga.medico }}</td>
+    <td>{{ folga.enfermeiro }}</td>
+  </tr>
+  {% endfor %}
+</table>

@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+
+{% block home %}
+
+<h2 class="btn btn-warning btn-lg btn-block">Tem certeza que deseja deletar a folga ({{obj}}) ?</h2>
+
+<form method="POST">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Deletar</button>
+    
+   
+    <a class="btn btn-primary" href="{% url 'home' %}">Retornar</a>
+  
+
+</form>
+{% endblock  %}

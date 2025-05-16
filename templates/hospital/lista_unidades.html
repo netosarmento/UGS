@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+
+{% block menu %}
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link" href="/admin-dashboard">Dashboard</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'hospital_lista_escalas' %}">Escalas de Médicos</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'admin-view-doctor' %}">Cadastro de Médicos</a> 
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link active" href="{% url 'hospital_lista_unidades' %}">Cadastro de Postos de Saúde</a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="{% url 'hospital_lista_folgas' %}">Cadastro de Folgas</a>
+        </li>
+    </ul>
+{% endblock %}
+
+{% block main %}
+<div class="row">
+    <div class="col-6">
+        <br>
+        <h2 class="btn btn-info btn-lg btn-block">Cadastro de Postos</h2>
+
+        {% if sucesso %}
+            <p class="btn btn-success">{{ sucesso }}</p>
+        {% endif %}
+
+        <form action="{% url 'hospital_unidade_novo' %}" method="POST">
+        {% csrf_token %}
+
+        {% bootstrap_form form %}
+
+        <button type="submit" class="btn btn-primary">Cadastrar</button>
+    </div>
+
+    <div class="col-6">
+        <br>
+        <h1 class="btn btn-info btn-lg btn-block">Lista de Postos </h1>
+        <table class="table">
+            <thead class="thead-dark">
+                <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Nome</th>
+                <th scope="col">Rua</th>
+                <th scope="col">Número</th>               
+                <th scope="col">Bairro</th>               
+                <th scope="col">Cidade</th>               
+                <th scope="col">Editar</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for unidade in unidades %}
+                <tr>
+                <th scope="row">{{unidade.id}}</th>
+                <td>{{unidade.nome}}</td>
+                <td>{{unidade.rua}}</td>
+                <td>{{unidade.numero}}</td>
+                <td>{{unidade.bairro}}</td>
+                <td>{{unidade.cidade}}</td>
+                <td>
+                    <a class="btn btn-outline-dark" href="{% url 'hospital_unidade_update' unidade.id %}">Editar</a>
+                </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>  
+    </div>
+</div>
+
+
+    </form>
+{% endblock  %}

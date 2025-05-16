@@ -1,0 +1,100 @@
+{% extends 'hospital/admin_base.html' %}
+{% load static %}
+
+{% block title %}
+MedicalStore :: View Medicines
+{% endblock title %}
+
+{% block content %}
+<style>
+    div.messages {
+        margin: auto;
+        width: 60%;
+        margin-top: 30px;
+    }
+
+    p.alert {
+        font-weight: 550;
+    }
+
+    @media screen and (max-width: 785px) {
+        div.messages {
+            width: 80% !important;
+        }
+    }
+</style>
+
+<section id="dashboard_section" class="dashboard_section" style="margin-top: 30px;">
+    <div class="container-fluid">
+        <div class="add_dealer">
+
+            {# ✅ Exibe mensagens de sucesso, erro, etc. #}
+            {% if messages %}
+            <div class="messages">
+                {% for message in messages %}
+                <p{% if message.tags %} class="alert alert-{{ message.tags }}" {% endif %}>
+                    {% if message.level == DEFAULT_MESSAGE_LEVELS.ERROR %}Important: {% endif %}
+                    {{ message }}
+                </p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="dealers__card card">
+                <p class="h2">View Medicines</p>
+
+                {# ✅ Botões que NÃO precisam de argumento (OK manter aqui) #}
+                <div class="mb-3">
+                    <a href="{% url 'relatorio-remedios' %}" class="btn btn-secondary">
+                        📊 Ver Relatório de Uso de Medicamentos
+                    </a>
+                </div>
+                <div class="mb-3">
+                    <a href="{% url 'add-medicine' %}" class="btn btn-secondary">
+                        ➕ Adicionar Medicamento
+                    </a>
+                </div>
+
+                {# ✅ Tabela de medicamentos com ações específicas por item (corretas) #}
+                <div class="dealers__table table-responsive">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Medicamento Codigo</th>
+                                <th scope="col">Medicamento Nome</th>
+                                <th scope="col">Laboratório</th>
+                                <th scope="col">Estoque</th>
+                                <th scope="col">Descrição</th>
+                                <th scope="col">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for medicine in medicines %}
+                            <tr>
+                                <th scope="row">{{ medicine.id }}</th>
+                                <td>{{ medicine.med_code }}</td>
+                                <td>{{ medicine.med_name }}</td>
+                                <td>{{ medicine.lab }}</td>
+                                <td>{{ medicine.stock }}</td>
+                                <td>{{ medicine.description }}</td>
+                                <td>
+                                    {# ✅ Aqui os botões funcionam pois usam o pk embutido nas URLs dos métodos #}
+                                    <a href="{{ medicine.get_update_url }}" class="btn btn-sm btn-warning text-white">
+                                        ✏️ Editar
+                                    </a>
+                                    <a href="{{ medicine.get_delete_url }}" class="btn btn-sm btn-danger text-white">
+                                        🗑️ Deletar
+                                    </a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock content %}

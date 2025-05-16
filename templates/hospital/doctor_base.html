@@ -297,10 +297,14 @@
           <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse justify-content-between" id="navbarCollapse">
-          <div class="navbar-nav" style=" margin-left: 90%;">
-
-            <a href="/logout" class="nav-item nav-link">Logout</a>
-          </div>
+          <div class="navbar-nav" style="margin-left: 90%;">
+            <form method="post" action="{% url 'logout' %}">
+              {% csrf_token %}
+               <button type="submit" class="nav-item nav-link btn btn-link" style="padding: 0; border: none; background: none;">
+               Logout
+            </button>
+        </form>
+    </div>
         </div>
       </nav>
     </div>

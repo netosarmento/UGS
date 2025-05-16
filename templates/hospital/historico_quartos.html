@@ -1,0 +1,25 @@
+{% extends 'hospital/admin_base.html' %}
+{% block content %}
+<h2>Quartos - Histórico de Ocupações</h2>
+
+{% for h in historico %}
+    <div class="historico-card">
+        <h4>{{ h.room }}</h4>
+        
+        <p>
+            Paciente:
+            {% if h.paciente %}
+                {{ h.paciente.get_name }}
+            {% else %}
+                Removido
+            {% endif %}
+        </p>
+        
+        <p>Entrada: {{ h.entrada }}</p>
+        <p>Saída: {{ h.saida|default:"Em andamento" }}</p>
+    </div>
+{% empty %}
+    <p>Nenhum histórico encontrado.</p>
+{% endfor %}
+
+{% endblock content %}

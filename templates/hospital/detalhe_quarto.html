@@ -1,0 +1,38 @@
+{% extends 'hospital/admin_base.html' %}
+{% block content %}
+<h2>Informações de Quarto</h2>
+
+
+<div class="quarto-detalhe">
+    <h2>Quarto {{ quarto.numero }} - {{ quarto.tipo }}</h2>
+
+    {% if quarto.paciente %}
+        <h3>Paciente: {{ quarto.paciente.get_name }}</h3>
+        <p><strong>Sintomas:</strong> {{ quarto.paciente.symptoms }}</p>
+        <p><strong>Entrada:</strong> {{ quarto.entrada }}</p>
+
+        <h4>Médico Responsável</h4>
+        {% if quarto.paciente.assigned_doctor %}
+            <p>{{ quarto.paciente.assigned_doctor.get_name }}</p>
+        {% else %}
+            <p><em>Não atribuído</em></p>
+        {% endif %}
+
+        <h4>Enfermeiros Acompanhando</h4>
+        {% for enfermeira in quarto.paciente.enfermeiras.all %}
+            <p>{{ enfermeira.get_name }}</p>
+        {% empty %}
+            <p><em>Sem enfermeiros registrados</em></p>
+        {% endfor %}
+
+        <h4>Medicações</h4>
+        {% for med in quarto.paciente.medicacao_set.all %}
+            <p>{{ med.nome }} - {{ med.horario }}</p>
+        {% empty %}
+            <p><em>Nenhuma medicação registrada</em></p>
+        {% endfor %}
+    {% else %}
+        <p><em>Quarto disponível</em></p>
+    {% endif %}
+</div>
+{% endblock content %}

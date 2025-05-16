@@ -37,7 +37,12 @@
     <hr class="my-4">
     <p>Verifique em breve</p>
     <p class="lead">
-      <a class="btn btn-primary btn-lg" href="/logout" role="button">Logout por agora</a>
+      <form method="post" action="{% url 'logout' %}" style="display: flex; justify-content: center;">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-primary btn-lg" role="button">
+         Logout
+        </button>
+      </form>
     </p>
   </div>
 

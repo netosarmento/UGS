@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% load django_bootstrap5 %}
+
+
+{% block main %}
+<div class="row">
+    <div class="col-6">
+        <h2 class="btn btn-info btn-lg btn-block">Editando Folga: {{folga}}</h2>
+        <form action="{% url 'hospital_folga_update' folga.id %}" method="POST">
+            {% csrf_token %}
+
+            {% bootstrap_form form %}
+            
+            <button type="submit" class="btn btn-primary">Salvar</button>
+            <a class="btn btn-danger" href="{% url 'hospital_folga_delete' folga.id %}">Deletar</a>
+        </form>
+    </div>
+</div>
+
+{% endblock  %}

@@ -1,0 +1,28 @@
+<style>
+    .red {
+        color: red;
+    }
+    .blue {
+      color: blue;
+    }
+</style>
+
+<h1 class="red">Relatorio de Escalas</h1>
+<table>
+  <tr class="blue">
+    <td>Id</td>
+    <td>Data</td>
+    <td>Posto</td>
+    <td>Médico</td>
+  </tr>
+
+  {% for escala in escalas %}
+      <tr>
+        <td>{{ escala.id }}</td>
+        <td>{{ escala.data }}</td>
+        <td>{{ escala.posto }}</td>
+        <td>{{ escala.medico }}</td>
+        <td>{{ escala.enfermeiro }}</td>
+      </tr>
+  {% endfor %}
+</table>

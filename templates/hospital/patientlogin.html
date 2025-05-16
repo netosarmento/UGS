@@ -60,10 +60,15 @@
   <!--- login page for patient by admin(sumit)  ---------->
   <form method="post">
     {% csrf_token %}
+    {% if form.errors %}
+      <div class="alert alert-danger" role="alert">
+       Usuário ou senha inválidos.
+      </div>
+    {% endif %}
     <div class="container register-form">
       <div class="form">
         <div class="note">
-          <p>Patient Login Page</p>
+          <p>Paciente Login Page</p>
         </div>
 
         <div class="form-content">
@@ -93,9 +98,9 @@
 
   <br><br><br>
   <!--
-  developed By : sumit kumar
-  facebook : fb.com/sumit.luv
-  youtube : youtube.com/lazycoders
+  developed By : Neto Sarmento 
+  Instagram : norte_dev
+  MEI : Tech Norte Soluções 
   -->
 
   {% include "hospital/footer.html" %}

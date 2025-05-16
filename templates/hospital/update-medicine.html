@@ -1,0 +1,87 @@
+{% extends 'hospital/admin_base.html' %}
+{% load static %}
+
+{% block title %}
+MedicalStore :: Update Medicine
+{% endblock title %}
+
+{% block content %}
+    <section id="dashboard_section" class="dashboard_section" style="margin-top: 30px;">
+
+       
+
+        <div class="container-fluid">
+            <div class="add_dealer">
+                <div class="medicine__card card">
+                    <p class="h2">
+                        Atualizar Medicamento
+                    </p>
+
+                    <div class="add__dealer__form">
+                        <div class="container">
+                            <form class="row g-3 needs-validation" method="POST">
+                            {% csrf_token %}
+
+                                <div class="col-md-6">
+                                    <label for="validationCustomMedCode" class="form-label">
+                                        Medicamento Codigo:
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="inputGroupPrepend">@</span>
+                                        {{ form.med_code }}
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <label for="validationCustomMedName" class="form-label">
+                                        Medicamento Nome:
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="inputGroupPrepend">@</span>
+                                        {{ form.med_name }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <label for="validationCustomDealerName" class="form-label">
+                                        Laboratorio Nome:
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="inputGroupPrepend">@</span>
+                                        {{ form.lab }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-6">
+                                    <label for="validationCustomStock" class="form-label">
+                                        Estoque:
+                                    </label>
+                                    <div class="input-group">
+                                        <span class="input-group-text" id="inputGroupPrepend">@</span>
+                                        {{ form.stock }}
+                                    </div>
+                                </div>
+
+                                <div class="col-md-12">
+                                    <div class="form-group">
+                                        <label for="validationAddress" class="form-label">
+                                            Descrição:
+                                        </label>
+                                        {{ form.description }}
+                                    </div>
+                                </div>
+
+                                <div class="col-12 pt-3">
+                                    <div class="col-12 pb-3">
+                                        <button class="btn btn-block login-button" type="submit">
+                                            Confirmar
+                                        </button>
+                                    </div>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock content %}

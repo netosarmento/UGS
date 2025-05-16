@@ -1,0 +1,588 @@
+* {
+  margin: 0%;
+  padding: 0%;
+  box-sizing: border-box;
+}
+
+nav.top__nav {
+  background-color: #00ffff;
+  color: #fff;
+}
+nav.top__nav div.top__nav__flex {
+  display: flex;
+  margin: auto;
+  justify-content: space-between;
+}
+nav.top__nav div.top__nav__flex div.tel {
+  display: flex;
+}
+nav.top__nav div.top__nav__flex div.tel svg {
+  font-size: 20px;
+  margin-top: 10px;
+  margin-right: 10px;
+}
+nav.top__nav div.top__nav__flex div.tel p.tel__num {
+  font-size: 18px;
+  font-weight: 550;
+  margin-bottom: 0% !important;
+  padding-top: 5px;
+}
+nav.top__nav div.top__nav__flex ul.socials {
+  list-style: none;
+  margin: 0% !important;
+  padding: 0% !important;
+}
+nav.top__nav div.top__nav__flex li.social a.nav-link {
+  color: #fff !important;
+}
+nav.top__nav div.top__nav__flex li.social a.nav-link svg {
+  font-size: 20px;
+}
+
+nav.main__nav {
+  background-color: #000;
+  padding: 10px;
+}
+nav.main__nav div.main__nav__flex {
+  display: flex;
+  justify-content: space-between !important;
+}
+nav.main__nav div.main__nav__flex img {
+  width: 50px;
+  height: 30px;
+  margin-right: 10px;
+}
+nav.main__nav div.main__nav__flex span.logo,
+nav.main__nav div.main__nav__flex a.navbar-brand {
+  color: #fff !important;
+  font-size: 18px;
+  font-weight: 600;
+}
+nav.main__nav div.main__nav__flex ul.nav-items {
+  display: flex;
+}
+nav.main__nav div.main__nav__flex ul.nav-items,
+nav.main__nav div.main__nav__flex ul.accounts {
+  list-style: none;
+  margin: 0% !important;
+  padding: 0% !important;
+}
+nav.main__nav div.main__nav__flex ul.accounts {
+  margin-right: auto !important;
+}
+nav.main__nav div.main__nav__flex ul.accounts li.account:nth-child(1) {
+  margin-right: 0%;
+}
+
+a.nav-link {
+  color: #fff !important;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.navbar-collapse {
+  align-items: center !important;
+  width: -webkit-fit-content;
+  width: -moz-fit-content;
+  width: fit-content;
+}
+
+section.home__section {
+  background-color: #00fff0;
+  height: 100vh;
+}
+
+main.section__main div.section {
+  margin-top: 80px;
+}
+main.section__main div.section__image img {
+  width: 90%;
+  height: 80%;
+}
+
+div.section__desc p.h2 {
+  font-size: 36px;
+  color: #000;
+  font-weight: 550;
+  line-height: 60px;
+}
+div.section__desc p.h2 span.p2__child {
+  font-size: 62px;
+  font-weight: 600;
+  color: #fff !important;
+}
+div.section__desc p.h4 {
+  font-size: 24px;
+  margin-top: 20px;
+  width: 90%;
+  color: #fff;
+  margin-bottom: 40px;
+}
+div.section__desc a.bg__black {
+  background-color: #000;
+  border-radius: 0%;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 550;
+  padding: 15px 30px 15px 30px;
+}
+div.section__desc a.bg__black:hover {
+  background-color: #0c0b0b;
+}
+
+section.login__section {
+  background-image: linear-gradient(to left, #00ffff, #00fff0);
+  padding-bottom: 50px;
+}
+
+section.login_body {
+  text-align: center;
+  height: 100vh;
+}
+
+div.login_card {
+  margin: auto;
+  margin-top: 60px !important;
+  background-image: linear-gradient(to left, #000, #090c09);
+  width: 50%;
+  padding: 20px;
+  margin: auto;
+  border-radius: 20px;
+  border: 2px solid 46.2745098039%;
+}
+div.login_card p.h3 {
+  color: #fff;
+  padding-top: 30px;
+  font-size: 42px;
+  text-align: center;
+  margin-bottom: 5% !important;
+  font-weight: 550;
+}
+
+label.form-label {
+  color: #fff !important;
+  font-size: 18px;
+  font-weight: 550;
+}
+
+span.input-group-text {
+  color: #fff !important;
+  font-weight: 550;
+}
+
+input.form-control.user_input,
+input.form-control.password_input {
+  border-radius: 0px 20px 20px 0px !important;
+}
+
+div.forgotten_password {
+  margin-bottom: 20px;
+}
+div.forgotten_password p {
+  color: #fff;
+}
+div.forgotten_password p a {
+  color: #fff !important;
+  text-decoration: underline;
+  font-weight: 550;
+}
+
+button.login-button {
+  background-color: #fff;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 550;
+  color: #000 !important;
+}
+
+section.register_body {
+  text-align: center;
+  padding: 50px;
+}
+
+div.register_card {
+  margin: auto;
+  background-image: linear-gradient(to left, #000, #090c09);
+  width: 50%;
+  padding: 20px;
+  margin: auto;
+  border-radius: 20px;
+  border: 2px solid 46.2745098039%;
+}
+div.register_card p.h3 {
+  color: #fff;
+  padding-top: 30px;
+  font-size: 42px;
+  margin-bottom: 0% !important;
+  font-weight: 550;
+  text-align: center;
+}
+
+/* 
+==== DASHBOARD HEADER SECTION =====
+*/
+a.nav_image img {
+  width: 40px;
+  background-color: #e2e8f0;
+  padding: 5px;
+  color: #000 !important;
+  border-radius: 50%;
+}
+
+span.nav_span {
+  font-weight: 550;
+  color: #000;
+  margin-left: 10px;
+}
+
+div.navbar_flex {
+  display: flex;
+  justify-content: flex-end;
+}
+
+div.navbar_flex {
+  font-weight: 550;
+  color: #000;
+}
+
+span.sidebar_active {
+  font-weight: 550;
+}
+
+/* 
+==== DASHBOARD HEADER SECTION =====
+*/
+/* 
+==== DASHBOARD SECTION =====
+*/
+div.dashboard_navbar {
+  margin-left: 12rem;
+}
+
+nav.sidenav_bar {
+  width: 12rem;
+  height: 100%;
+  padding-bottom: 50px;
+  position: fixed;
+  background: #000;
+  border-radius: 0px 30px 30px 0px;
+}
+
+button#sidebarToggleButton {
+  background-color: #fbfbfb;
+}
+
+button#sidebarToggleButton svg {
+  font-size: 18px;
+  color: #000;
+}
+
+@media screen and (max-width: 370px) {
+  a.logout {
+    display: none;
+  }
+}
+@media screen and (max-width: 550px) {
+  nav.sidenav-d-none {
+    display: none;
+    width: 0rem !important;
+    position: relative;
+    height: 0em;
+  }
+
+  div.dashboard_navbar {
+    margin-left: 0rem;
+  }
+
+  div.dashboard {
+    margin-left: 0rem !important;
+  }
+}
+@media screen and (min-width: 550px) {
+  div.dashboard_sidebar_button {
+    display: none;
+  }
+}
+div.dashboard_logo {
+  margin-top: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+div.dashboard_logo span.text {
+  color: #fff !important;
+  font-weight: 550;
+}
+
+hr.hr_sidenav {
+  background-color: #fff;
+  height: 2px;
+}
+
+ul.sidebar {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  margin-left: 10px;
+}
+
+li.sidebar_item {
+  margin-bottom: 1rem;
+}
+
+li.sidebar_item img {
+  width: 20px;
+}
+
+li.sidebar_item p.item_text {
+  margin-bottom: 0em;
+  color: #f7fafc;
+  font-weight: 550;
+}
+
+li.sidebar_item a {
+  color: #f7fafc;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+li.sidebar_item span:hover {
+  font-weight: 600;
+}
+
+li.sidebar_item span.item_text {
+  text-transform: uppercase;
+}
+
+li.sidebar_item svg {
+  width: 50px;
+  font-size: 16px;
+  color: #f7fafc;
+  border-radius: 50%;
+}
+
+div.dealer__items,
+div.medicine__items,
+div.employee__items,
+div.customer__items,
+div.purchase__items {
+  display: flex;
+  flex-direction: column;
+}
+
+.d-none {
+  display: none !important;
+}
+
+a.dealer__item {
+  color: #f7fafc;
+  font-size: 14px;
+}
+
+a.dealer__item:hover {
+  font-weight: 550;
+}
+
+div.sidebar_meta {
+  margin-top: 26px;
+}
+
+div.dashboard {
+  margin-left: 12rem;
+}
+
+section.dashboard_section {
+  --bg-opacity: 1;
+  background-color: #f7fafc;
+  background-size: contain;
+}
+
+div.dashboard_pay_meta {
+  margin-top: 30px;
+  margin-bottom: 50px;
+}
+
+div.dashboard_pay_flex {
+  display: flex;
+  justify-content: flex-end;
+}
+
+div.dashboard_pay_flex a {
+  margin-right: 20px;
+}
+
+div.dashboard_pay_flex a:hover {
+  font-weight: 550;
+  border-radius: 8px;
+}
+
+div.dashboard_pay_flex a:last-child {
+  margin-right: 0px;
+}
+
+@media (max-width: 750px) {
+  div.dashboard_pay_flex {
+    flex-direction: column;
+  }
+
+  div.dashboard_pay_flex a {
+    margin-bottom: 10px;
+    margin-right: 0em !important;
+  }
+}
+div.add_dealer {
+  margin-top: 50px;
+  padding-bottom: 50px;
+}
+
+div.dealer__card,
+div.medicine__card,
+div.employee__card,
+div.customer__card,
+div.purchase__card,
+div.confirm__card {
+  padding: 20px;
+  background-color: #000;
+  width: 80%;
+  margin: auto;
+  margin-right: 30px;
+  border-radius: 20px;
+}
+div.dealer__card p.h2,
+div.medicine__card p.h2,
+div.employee__card p.h2,
+div.customer__card p.h2,
+div.purchase__card p.h2,
+div.confirm__card p.h2 {
+  text-align: center;
+  color: #fff;
+  margin-bottom: 20px;
+  font-weight: 550;
+}
+
+div.confirm__logout {
+  display: flex;
+  justify-content: center;
+  padding-top: 30px;
+}
+
+div.confirm__card {
+  padding: 20px;
+  background-color: #000;
+  width: 50%;
+  margin: auto;
+  border-radius: 20px;
+}
+div.confirm__card p.h2 {
+  text-align: center;
+  color: #fff;
+  margin-bottom: 20px;
+  font-weight: 550;
+}
+
+div.confirm {
+  display: flex;
+  justify-content: center;
+  margin-top: 10px;
+}
+div.confirm a.btn.bg-danger {
+  color: #f7fafc;
+  margin-right: 10px;
+  background-color: red !important;
+}
+div.confirm a.btn.bg-default {
+  color: #f7fafc;
+  background-color: grey;
+}
+
+.margin__left {
+  margin-left: 12rem !important;
+}
+
+div.dealers__card {
+  padding: 20px;
+  background-color: #000;
+  width: 60%;
+  margin: auto;
+  border-radius: 20px;
+}
+div.dealers__card p.h2 {
+  text-align: center;
+  color: #fff;
+  margin-bottom: 20px;
+  font-weight: 550;
+}
+
+div.dealers__table table.table {
+  width: 100% !important;
+  color: #fff;
+}
+div.dealers__table table.table thead {
+  font-size: 15px;
+  font-weight: 600 !important;
+}
+div.dealers__table table.table th.scope:first-child {
+  font-weight: 600 !important;
+}
+
+/* 
+===== END OF DASHBOARD SECTION =====
+*/
+@media screen and (max-width: 785px) {
+  section.home__section {
+    background-color: #00fff0;
+    height: 100%;
+    padding-bottom: 50px;
+    padding-top: 0% !important;
+  }
+
+  div.section__image img {
+    width: 50%;
+    height: 50%;
+  }
+
+  span.p2__child {
+    width: 100% !important;
+    font-weight: 60px;
+  }
+
+  ul.navbar-nav {
+    text-align: center !important;
+    flex-direction: row !important;
+  }
+  ul.navbar-nav li.social {
+    margin-right: 10px !important;
+  }
+
+  ul.accounts li.account:nth-child(1) {
+    margin-right: 10px !important;
+  }
+  ul.accounts li.account:nth-child(2) {
+    margin-right: 0% !important;
+  }
+}
+@media screen and (max-width: 785px) {
+  section.register_body {
+    padding: 30px;
+    margin-top: 20px;
+  }
+
+  div.register_card {
+    width: 100% !important;
+  }
+}
+@media screen and (max-width: 785px) {
+  section.login_body {
+    padding: 30px;
+  }
+
+  div.login_card {
+    width: 100% !important;
+  }
+
+  div.dealers__card {
+    width: 80%;
+  }
+}/*# sourceMappingURL=styles.css.map */
